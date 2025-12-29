@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
+import { canCreateEventsAndDishes } from '@/lib/auth/permissions'
 
 type Dish = Database['public']['Tables']['dishes']['Row']
 
@@ -30,6 +31,12 @@ export default function DishForm({
 
     if (!user) {
       alert('You must be signed in to create dishes')
+      setIsLoading(false)
+      return
+    }
+
+    if (!canCreateEventsAndDishes(user.email)) {
+      alert('You do not have permission to create dishes')
       setIsLoading(false)
       return
     }
