@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import AuthButton from '@/components/AuthButton'
+import Link from 'next/link'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -9,6 +10,8 @@ export default async function Home() {
   if (user) {
     redirect('/host')
   }
+
+  const isDev = process.env.NODE_ENV === 'development'
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
@@ -47,7 +50,17 @@ export default async function Home() {
             </li>
           </ul>
 
-          <AuthButton />
+          <div className="flex flex-col gap-4">
+            <AuthButton />
+            {isDev && (
+              <Link
+                href="/api/auth/dev-login"
+                className="inline-flex items-center justify-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-purple-700 transition-all"
+              >
+                Dev Login (dxiaochuan@gmail.com)
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="text-gray-600 dark:text-gray-400 text-sm space-y-2">
