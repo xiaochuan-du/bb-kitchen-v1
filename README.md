@@ -103,7 +103,22 @@ npm start
 
 # Run linter
 npm run lint
+
+# Run tests
+npm test
+
+# Run tests in UI mode
+npm run test:ui
 ```
+
+## Testing
+
+This project includes comprehensive end-to-end testing with Playwright:
+- **12 automated tests** covering landing page, authentication, accessibility, and responsive design
+- **CI/CD ready** with automatic test retry and HTML reports
+- **MCP integration** for automated testing in Claude Code
+
+For detailed testing documentation, see [TESTING.md](./TESTING.md)
 
 ## Success Criteria (MVP)
 
