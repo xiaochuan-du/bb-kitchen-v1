@@ -28,63 +28,71 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-start mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-3xl font-display font-semibold text-primary tracking-tight mb-2">
             Dish Library
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {dishes.length} dishes total
+          <p className="font-sans text-sm text-tertiary">
+            {dishes.length} {dishes.length === 1 ? 'dish' : 'dishes'} in your collection
           </p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium"
+          className="font-sans px-6 py-3 bg-[var(--accent-forest)] text-white rounded-sm hover:bg-[var(--accent-earth)] transition-all duration-300 font-medium text-sm tracking-wide shadow-[0_4px_12px_var(--shadow-soft)]"
         >
           {showForm ? 'Cancel' : '+ Add Dish'}
         </button>
       </div>
 
       {showForm && (
-        <div className="mb-6">
+        <div className="mb-8 animate-scale-in">
           <DishForm onSuccess={handleDishCreated} onCancel={() => setShowForm(false)} />
         </div>
       )}
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-3 mb-8">
         {['all', 'appetizer', 'main', 'dessert'].map((cat) => (
           <button
             key={cat}
             onClick={() => setFilter(cat as typeof filter)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+            className={`font-sans px-5 py-2 rounded-sm text-sm font-medium transition-all duration-300 ${
               filter === cat
-                ? 'bg-orange-500 text-white'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                ? 'bg-[var(--accent-warm)] text-white shadow-[0_4px_12px_var(--shadow-soft)]'
+                : 'bg-secondary border border-subtle text-secondary hover:border-[var(--accent-warm)] hover:text-[var(--accent-warm)]'
             }`}
           >
-            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            {cat === 'all' ? 'All Dishes' : cat.charAt(0).toUpperCase() + cat.slice(1)}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredDishes.map((dish) => (
-          <DishCard
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {filteredDishes.map((dish, index) => (
+          <div
             key={dish.id}
-            dish={dish}
-            onDelete={handleDishDeleted}
-          />
+            className="animate-fade-in-up"
+            style={{ animationDelay: `${index * 0.05}s` }}
+          >
+            <DishCard
+              dish={dish}
+              onDelete={handleDishDeleted}
+            />
+          </div>
         ))}
       </div>
 
       {filteredDishes.length === 0 && (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
-          <p className="text-gray-500 dark:text-gray-400">
-            {filter === 'all'
-              ? 'No dishes yet. Add your first dish to get started!'
-              : `No ${filter} dishes yet.`
-            }
-          </p>
+        <div className="text-center py-20 bg-secondary border border-subtle rounded-sm">
+          <div className="max-w-sm mx-auto">
+            <div className="w-16 h-px bg-[var(--accent-sage)] mx-auto mb-6"></div>
+            <p className="font-serif text-lg text-secondary">
+              {filter === 'all'
+                ? 'No dishes yet. Add your first dish to begin building your collection.'
+                : `No ${filter} dishes in your library yet.`
+              }
+            </p>
+          </div>
         </div>
       )}
     </div>

@@ -19,9 +19,9 @@ export default function AuthButton() {
   return (
     <button
       onClick={handleSignIn}
-      className="inline-flex items-center gap-3 bg-white text-gray-900 border-2 border-gray-300 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-all hover:shadow-lg"
+      className="inline-flex items-center justify-center gap-3 bg-white border-2 border-subtle text-primary px-8 py-4 rounded-sm text-base font-sans font-medium hover:border-[var(--accent-earth)] hover:bg-accent transition-all duration-300 shadow-[0_4px_12px_var(--shadow-soft)] hover:shadow-[0_8px_20px_var(--shadow-medium)]"
     >
-      <svg className="w-6 h-6" viewBox="0 0 24 24">
+      <svg className="w-5 h-5" viewBox="0 0 24 24">
         <path
           fill="#4285F4"
           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
