@@ -2,6 +2,8 @@
 
 A modern web application for hosts to create curated menu experiences with safety-first ingredient transparency and democratic dessert voting.
 
+https://supabase.com/dashboard/project/cepfbggmuiarcibzyhfb/sql/862187ab-7986-4caa-91ac-68595ceb8920
+
 ## Features
 
 ### For Hosts
