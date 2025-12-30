@@ -27,18 +27,19 @@ export default async function HostDashboard() {
       <HostNav user={user} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-16 animate-fade-in-up">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-2 h-16 bg-[var(--accent-warm)]"></div>
-            <div>
-              <h1 className="text-4xl md:text-5xl font-display font-semibold text-primary tracking-tight">
+        <div className="mb-16 animate-fade-in-up relative">
+          <div className="flex items-start gap-6 mb-6">
+            <div className="flex-shrink-0 w-1.5 h-20 bg-gradient-to-b from-[var(--accent-warm)] to-[var(--accent-forest)] rounded-full"></div>
+            <div className="flex-1">
+              <h1 className="text-5xl md:text-6xl font-display font-semibold text-primary tracking-tight mb-3">
                 Host Dashboard
               </h1>
-              <p className="font-sans text-secondary mt-2">
+              <p className="font-sans text-lg text-secondary max-w-2xl">
                 Manage your culinary collection and upcoming events
               </p>
             </div>
           </div>
+          <div className="h-px bg-gradient-to-r from-[var(--accent-warm)]/20 via-[var(--accent-warm)]/40 to-transparent mt-8"></div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">

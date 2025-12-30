@@ -39,9 +39,9 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="font-sans px-6 py-3 bg-[var(--accent-forest)] text-white rounded-sm hover:bg-[var(--accent-earth)] transition-all duration-300 font-medium text-sm tracking-wide shadow-[0_4px_12px_var(--shadow-soft)]"
+          className="font-sans px-6 py-3 bg-[#C17254] text-white rounded-sm hover:bg-[#8B7355] transition-all duration-300 font-medium text-sm tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5"
         >
-          {showForm ? 'Cancel' : '+ Add Dish'}
+          {showForm ? '✕ Cancel' : '+ Add Dish'}
         </button>
       </div>
 
@@ -56,10 +56,10 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
           <button
             key={cat}
             onClick={() => setFilter(cat as typeof filter)}
-            className={`font-sans px-5 py-2 rounded-sm text-sm font-medium transition-all duration-300 ${
+            className={`font-sans px-5 py-2.5 rounded-sm text-sm font-medium transition-all duration-300 ${
               filter === cat
-                ? 'bg-[var(--accent-warm)] text-white shadow-[0_4px_12px_var(--shadow-soft)]'
-                : 'bg-secondary border border-subtle text-secondary hover:border-[var(--accent-warm)] hover:text-[var(--accent-warm)]'
+                ? 'bg-[#3D5540] text-white shadow-lg'
+                : 'bg-secondary border border-subtle text-secondary hover:border-[#3D5540] hover:text-[#3D5540] hover:shadow-md'
             }`}
           >
             {cat === 'all' ? 'All Dishes' : cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -83,13 +83,22 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
       </div>
 
       {filteredDishes.length === 0 && (
-        <div className="text-center py-20 bg-secondary border border-subtle rounded-sm">
-          <div className="max-w-sm mx-auto">
-            <div className="w-16 h-px bg-[var(--accent-sage)] mx-auto mb-6"></div>
-            <p className="font-serif text-lg text-secondary">
+        <div className="relative text-center py-20 bg-secondary border-2 border-dashed border-subtle rounded-lg overflow-hidden group hover:border-[#9DAA97] transition-all duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9DAA97]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="relative max-w-sm mx-auto">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#C17254]/10 to-[#9DAA97]/10 flex items-center justify-center">
+              <div className="text-4xl">🍽️</div>
+            </div>
+            <p className="font-serif text-xl text-primary mb-2">
               {filter === 'all'
-                ? 'No dishes yet. Add your first dish to begin building your collection.'
-                : `No ${filter} dishes in your library yet.`
+                ? 'Your culinary canvas awaits'
+                : `No ${filter} dishes yet`
+              }
+            </p>
+            <p className="font-sans text-sm text-tertiary">
+              {filter === 'all'
+                ? 'Add your first dish to begin building your collection'
+                : `Add a ${filter} dish to get started`
               }
             </p>
           </div>
