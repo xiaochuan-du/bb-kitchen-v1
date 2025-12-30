@@ -25,9 +25,7 @@ export default async function Home() {
               </span>
             </div>
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-display font-semibold text-primary mb-8 tracking-tight">
-              The Guest
-              <br />
-              Kitchen
+              Table Mate
             </h1>
           </div>
 
