@@ -1,4 +1,4 @@
-# The Guest Kitchen - MVP
+# Table Mate - MVP
 
 A modern web application for hosts to create curated menu experiences with safety-first ingredient transparency and democratic dessert voting.
 

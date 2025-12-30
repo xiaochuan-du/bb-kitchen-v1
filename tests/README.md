@@ -49,7 +49,7 @@ import { test, expect } from '@playwright/test'
 
 test('should display page title', async ({ page }) => {
   await page.goto('/')
-  await expect(page).toHaveTitle(/The Guest Kitchen/)
+  await expect(page).toHaveTitle(/Table Mate/)
 })
 ```
 

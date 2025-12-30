@@ -5,7 +5,7 @@ test.describe('Landing Page', () => {
     await page.goto('/')
 
     // Check main heading
-    await expect(page.getByRole('heading', { name: 'The Guest Kitchen' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Table Mate' })).toBeVisible()
 
     // Check tagline
     await expect(page.getByText('Curated menu experiences for hosting with care')).toBeVisible()
@@ -18,7 +18,7 @@ test.describe('Landing Page', () => {
     await page.goto('/')
 
     // Check page title
-    await expect(page).toHaveTitle(/The Guest Kitchen|Guest Kitchen/i)
+    await expect(page).toHaveTitle(/Table Mate|Guest Kitchen/i)
   })
 
   test('should display features list for hosts', async ({ page }) => {

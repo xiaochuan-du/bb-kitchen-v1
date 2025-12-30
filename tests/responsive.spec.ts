@@ -10,7 +10,7 @@ test.describe('Responsive Design', () => {
     await page.goto('/')
 
     // Check main heading is visible on mobile
-    await expect(page.getByRole('heading', { name: 'The Guest Kitchen' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Table Mate' })).toBeVisible()
 
     // Check sign-in button is visible on mobile
     await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible()
@@ -27,7 +27,7 @@ test.describe('Responsive Design', () => {
     await page.goto('/')
 
     // Check main heading is visible on tablet
-    await expect(page.getByRole('heading', { name: 'The Guest Kitchen' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Table Mate' })).toBeVisible()
 
     await context.close()
   })
@@ -37,6 +37,6 @@ test.describe('Responsive Design', () => {
     await page.goto('/')
 
     // Check main heading is visible on desktop
-    await expect(page.getByRole('heading', { name: 'The Guest Kitchen' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Table Mate' })).toBeVisible()
   })
 })

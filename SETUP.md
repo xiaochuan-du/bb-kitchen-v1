@@ -1,4 +1,4 @@
-# The Guest Kitchen - Setup Instructions
+# TableMate - Setup Instructions
 
 ## 1. Supabase Database Setup
 
