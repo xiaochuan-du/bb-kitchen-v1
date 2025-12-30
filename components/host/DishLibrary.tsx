@@ -11,6 +11,7 @@ type Dish = Database['public']['Tables']['dishes']['Row']
 export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }) {
   const [dishes, setDishes] = useState<Dish[]>(initialDishes)
   const [showForm, setShowForm] = useState(false)
+  const [editingDish, setEditingDish] = useState<Dish | null>(null)
   const [filter, setFilter] = useState<'all' | 'appetizer' | 'main' | 'dessert'>('all')
 
   const filteredDishes = filter === 'all'
@@ -20,6 +21,11 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
   const handleDishCreated = (newDish: Dish) => {
     setDishes([newDish, ...dishes])
     setShowForm(false)
+  }
+
+  const handleDishUpdated = (updatedDish: Dish) => {
+    setDishes(dishes.map(d => d.id === updatedDish.id ? updatedDish : d))
+    setEditingDish(null)
   }
 
   const handleDishDeleted = (dishId: string) => {
@@ -39,7 +45,8 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="font-sans px-6 py-3 bg-[#C17254] text-white rounded-sm hover:bg-[#8B7355] transition-all duration-300 font-medium text-sm tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+          disabled={editingDish !== null}
+          className="font-sans px-6 py-3 bg-[#C17254] text-white rounded-sm hover:bg-[#8B7355] transition-all duration-300 font-medium text-sm tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {showForm ? '✕ Cancel' : '+ Add Dish'}
         </button>
@@ -74,10 +81,20 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
             className="animate-fade-in-up"
             style={{ animationDelay: `${index * 0.05}s` }}
           >
-            <DishCard
-              dish={dish}
-              onDelete={handleDishDeleted}
-            />
+            {editingDish?.id === dish.id ? (
+              <DishForm
+                initialDish={dish}
+                isEditMode={true}
+                onSuccess={handleDishUpdated}
+                onCancel={() => setEditingDish(null)}
+              />
+            ) : (
+              <DishCard
+                dish={dish}
+                onDelete={handleDishDeleted}
+                onEdit={(dish) => setEditingDish(dish)}
+              />
+            )}
           </div>
         ))}
       </div>

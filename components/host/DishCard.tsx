@@ -10,9 +10,11 @@ type Dish = Database['public']['Tables']['dishes']['Row']
 export default function DishCard({
   dish,
   onDelete,
+  onEdit,
 }: {
   dish: Dish
   onDelete: (dishId: string) => void
+  onEdit?: (dish: Dish) => void
 }) {
   const [showIngredients, setShowIngredients] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -67,13 +69,23 @@ export default function DishCard({
               {dish.name}
             </h3>
           </div>
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="font-sans text-xs text-tertiary hover:text-[var(--accent-warm)] transition-colors disabled:opacity-50 mt-1"
-          >
-            {isDeleting ? 'Deleting...' : 'Delete'}
-          </button>
+          <div className="flex gap-3 mt-1">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(dish)}
+                className="font-sans text-xs text-tertiary hover:text-[var(--accent-earth)] transition-colors"
+              >
+                Edit
+              </button>
+            )}
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="font-sans text-xs text-tertiary hover:text-[var(--accent-warm)] transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
         </div>
 
         {dish.description && (
