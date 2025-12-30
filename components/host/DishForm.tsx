@@ -10,17 +10,22 @@ type Dish = Database['public']['Tables']['dishes']['Row']
 export default function DishForm({
   onSuccess,
   onCancel,
+  initialDish = null,
+  isEditMode = false,
 }: {
   onSuccess: (dish: Dish) => void
   onCancel: () => void
+  initialDish?: Dish | null
+  isEditMode?: boolean
 }) {
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [category, setCategory] = useState<'appetizer' | 'main' | 'dessert'>('main')
-  const [ingredients, setIngredients] = useState('')
-  const [tags, setTags] = useState('')
+  const [name, setName] = useState(initialDish?.name || '')
+  const [description, setDescription] = useState(initialDish?.description || '')
+  const [category, setCategory] = useState<'appetizer' | 'main' | 'dessert'>(initialDish?.category || 'main')
+  const [ingredients, setIngredients] = useState(initialDish?.ingredients.join('\n') || '')
+  const [tags, setTags] = useState(initialDish?.tags.join(', ') || '')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const currentImageUrl = initialDish?.image_url
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,7 +46,7 @@ export default function DishForm({
       return
     }
 
-    let imageUrl = null
+    let imageUrl = currentImageUrl || null
 
     if (imageFile) {
       const fileExt = imageFile.name.split('.').pop()
@@ -60,25 +65,46 @@ export default function DishForm({
       }
     }
 
-    const { data, error } = await supabase
-      .from('dishes')
-      .insert({
-        host_id: user.id,
-        name,
-        description: description || null,
-        category,
-        ingredients: ingredients.split('\n').filter(i => i.trim()),
-        tags: tags.split(',').map(t => t.trim()).filter(t => t),
-        image_url: imageUrl,
-      } as never)
-      .select()
-      .single()
+    const dishData = {
+      name,
+      description: description || null,
+      category,
+      ingredients: ingredients.split('\n').filter(i => i.trim()),
+      tags: tags.split(',').map(t => t.trim()).filter(t => t),
+      image_url: imageUrl,
+    }
+
+    let data, error
+
+    if (isEditMode && initialDish) {
+      // Update existing dish
+      const result = await supabase
+        .from('dishes')
+        .update(dishData)
+        .eq('id', initialDish.id)
+        .select()
+        .single()
+      data = result.data
+      error = result.error
+    } else {
+      // Create new dish
+      const result = await supabase
+        .from('dishes')
+        .insert({
+          ...dishData,
+          host_id: user.id,
+        } as never)
+        .select()
+        .single()
+      data = result.data
+      error = result.error
+    }
 
     setIsLoading(false)
 
     if (error) {
-      console.error('Error creating dish:', error)
-      alert('Error creating dish. Please try again.')
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} dish:`, error)
+      alert(`Error ${isEditMode ? 'updating' : 'creating'} dish. Please try again.`)
     } else {
       onSuccess(data)
     }
@@ -87,7 +113,7 @@ export default function DishForm({
   return (
     <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        Add New Dish
+        {isEditMode ? 'Edit Dish' : 'Add New Dish'}
       </h3>
 
       <div className="space-y-4">
@@ -167,6 +193,17 @@ export default function DishForm({
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Dish Image
           </label>
+          {currentImageUrl && !imageFile && (
+            <div className="mb-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Current image:</p>
+              <img
+                src={currentImageUrl}
+                alt="Current dish"
+                className="w-32 h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Upload a new image to replace</p>
+            </div>
+          )}
           <input
             type="file"
             accept="image/*"
@@ -182,7 +219,7 @@ export default function DishForm({
           disabled={isLoading}
           className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium disabled:opacity-50"
         >
-          {isLoading ? 'Creating...' : 'Create Dish'}
+          {isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Dish' : 'Create Dish')}
         </button>
         <button
           type="button"
