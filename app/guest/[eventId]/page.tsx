@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import GuestMenuGallery from '@/components/guest/GuestMenuGallery'
 import type { Database } from '@/types/database'
@@ -18,7 +18,12 @@ export default async function GuestEventPage({
 }) {
   const { eventId } = await params
   const { token } = await searchParams
-  const supabase = await createClient()
+
+  // Use service role key to bypass RLS since guests are not authenticated
+  const supabase = createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
   if (!token) {
     return (
@@ -40,7 +45,7 @@ export default async function GuestEventPage({
     .select('*')
     .eq('event_id', eventId)
     .eq('magic_token', token)
-    .single<Guest>()
+    .single()
 
   if (guestError || !guest) {
     notFound()
@@ -50,7 +55,7 @@ export default async function GuestEventPage({
     .from('events')
     .select('*')
     .eq('id', eventId)
-    .single<Event>()
+    .single()
 
   if (eventError || !event) {
     notFound()

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { submitGuestSelection } from '@/app/guest/actions'
 import type { Database } from '@/types/database'
 import Image from 'next/image'
 
@@ -51,37 +51,22 @@ export default function GuestMenuGallery({
     }
 
     setIsSubmitting(true)
-    const supabase = createClient()
-
-    const { error: selectionError } = await supabase
-      .from('selections')
-      .upsert({
-        guest_id: guest.id,
-        event_id: event.id,
-        selected_main_id: selectedMainId,
-      } as never)
-
-    const { error: voteError } = await supabase
-      .from('dessert_votes')
-      .upsert({
-        guest_id: guest.id,
-        event_id: event.id,
-        dessert_id: selectedDessertId,
-      } as never)
-
-    const { error: guestError } = await supabase
-      .from('guests')
-      .update({ has_responded: true } as never)
-      .eq('id', guest.id)
-
-    if (selectionError || voteError || guestError) {
-      console.error('Error submitting:', { selectionError, voteError, guestError })
-      alert('Error submitting your selections. Please try again.')
-    } else {
+    
+    try {
+      await submitGuestSelection({
+        guestId: guest.id,
+        eventId: event.id,
+        selectedMainId,
+        selectedDessertId,
+        magicToken: guest.magic_token,
+      })
       setHasSubmitted(true)
+    } catch (error) {
+      console.error('Error submitting:', error)
+      alert('Error submitting your selections. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setIsSubmitting(false)
   }
 
   const DishCard = ({ dish, category }: { dish: Dish; category: string }) => (
