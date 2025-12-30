@@ -45,11 +45,6 @@ export default function GuestMenuGallery({
       return
     }
 
-    if (!selectedDessertId) {
-      alert('Please vote for a dessert')
-      return
-    }
-
     setIsSubmitting(true)
     
     try {
@@ -266,7 +261,7 @@ export default function GuestMenuGallery({
                   </h2>
                 </div>
                 <p className="font-sans text-secondary ml-16">
-                  Vote for your favorite — the most popular will be served
+                  Vote for your favorite (optional) — the most popular will be served
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -279,7 +274,7 @@ export default function GuestMenuGallery({
                         : 'opacity-60 hover:opacity-100'
                     }`}
                     style={{ animationDelay: `${index * 0.1}s` }}
-                    onClick={() => setSelectedDessertId(dish.id)}
+                    onClick={() => setSelectedDessertId(prev => prev === dish.id ? null : dish.id)}
                   >
                     <DishCard dish={dish} category="dessert" />
                   </div>

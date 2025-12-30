@@ -47,15 +47,26 @@ export async function submitGuestSelection({
 
   if (selectionError) throw new Error('Failed to save selection')
 
-  const { error: voteError } = await supabase
-    .from('dessert_votes')
-    .upsert({
-      guest_id: guestId,
-      event_id: eventId,
-      dessert_id: selectedDessertId!, // It should be validated before calling
-    })
+  if (selectedDessertId) {
+    const { error: voteError } = await supabase
+      .from('dessert_votes')
+      .upsert({
+        guest_id: guestId,
+        event_id: eventId,
+        dessert_id: selectedDessertId,
+      })
 
-  if (voteError) throw new Error('Failed to save dessert vote')
+    if (voteError) throw new Error('Failed to save dessert vote')
+  } else {
+    // If no dessert selected, remove any existing vote
+    const { error: deleteError } = await supabase
+      .from('dessert_votes')
+      .delete()
+      .eq('guest_id', guestId)
+      .eq('event_id', eventId)
+
+    if (deleteError) throw new Error('Failed to update dessert vote')
+  }
 
   const { error: guestError } = await supabase
     .from('guests')
