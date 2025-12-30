@@ -13,7 +13,7 @@ test.describe('Authentication Flow', () => {
 
     // Should redirect to landing page
     await expect(page).toHaveURL('/')
-    await expect(page.getByRole('heading', { name: 'The Guest Kitchen' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Table Mate' })).toBeVisible()
   })
 
   test('should have proper sign-in button configuration', async ({ page }) => {

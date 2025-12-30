@@ -21,7 +21,7 @@ export default function HostNav({ user }: { user: User }) {
           <div className="flex items-center gap-2">
             <span className="text-2xl">🍳</span>
             <span className="text-xl font-bold text-gray-900 dark:text-white">
-              The Guest Kitchen
+              Table Mate
             </span>
           </div>
 

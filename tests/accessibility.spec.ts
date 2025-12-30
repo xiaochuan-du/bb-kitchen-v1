@@ -5,7 +5,7 @@ test.describe('Accessibility', () => {
     await page.goto('/')
 
     // Check H1 exists
-    const h1 = page.getByRole('heading', { level: 1, name: 'The Guest Kitchen' })
+    const h1 = page.getByRole('heading', { level: 1, name: 'Table Mate' })
     await expect(h1).toBeVisible()
 
     // Check H2 exists

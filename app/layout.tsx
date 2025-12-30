@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "The Guest Kitchen",
+  title: "Table Mate",
   description: "Curated menu experiences for hosting with care",
 };
 

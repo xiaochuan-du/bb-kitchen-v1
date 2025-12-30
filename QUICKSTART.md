@@ -1,4 +1,4 @@
-# Quick Start Guide - The Guest Kitchen
+# Quick Start Guide - TableMate
 
 ## What You Have
 
