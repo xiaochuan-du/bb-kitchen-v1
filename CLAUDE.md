@@ -22,6 +22,9 @@ npm run test:headed      # Run tests with visible browser
 npm run test:debug       # Debug mode with Playwright Inspector
 npx playwright test tests/landing-page.spec.ts  # Run specific test file
 npx playwright show-report  # View test results
+
+# Data Management
+npm run load-dishes <host_id>  # Load dishes from data/processed/*.json into database
 ```
 
 ## Architecture
