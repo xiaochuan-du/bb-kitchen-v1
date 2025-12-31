@@ -16,6 +16,7 @@ export interface Database {
           host_id: string
           name: string
           description: string | null
+          recipe: string | null
           ingredients: string[]
           image_url: string | null
           tags: string[]
@@ -27,6 +28,7 @@ export interface Database {
           host_id: string
           name: string
           description?: string | null
+          recipe?: string | null
           ingredients: string[]
           image_url?: string | null
           tags?: string[]
@@ -38,6 +40,7 @@ export interface Database {
           host_id?: string
           name?: string
           description?: string | null
+          recipe?: string | null
           ingredients?: string[]
           image_url?: string | null
           tags?: string[]
