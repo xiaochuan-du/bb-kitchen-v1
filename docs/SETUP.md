@@ -254,7 +254,75 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-## 5. First-Time Setup
+## 5. Deploy to Production (Vercel)
+
+### Install Vercel CLI
+
+```bash
+npm install -g vercel
+```
+
+### Initial Deployment
+
+```bash
+vercel
+```
+
+This will:
+1. Prompt you to log in (opens browser)
+2. Ask to link to an existing project or create new
+3. Deploy to a preview URL
+
+### Add Environment Variables
+
+Add the required environment variables to Vercel:
+
+```bash
+# Add each variable (you'll be prompted to enter the value)
+echo "YOUR_SUPABASE_URL" | vercel env add NEXT_PUBLIC_SUPABASE_URL production
+echo "YOUR_ANON_KEY" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
+echo "YOUR_SERVICE_ROLE_KEY" | vercel env add SUPABASE_SERVICE_ROLE_KEY production
+echo "https://your-app.vercel.app" | vercel env add NEXT_PUBLIC_APP_URL production
+```
+
+Or add them via the Vercel Dashboard: **Settings → Environment Variables**
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (keep secret) |
+| `NEXT_PUBLIC_APP_URL` | Your Vercel production URL |
+
+### Deploy to Production
+
+```bash
+vercel --prod
+```
+
+### Configure Supabase for Production
+
+After deployment, update your Supabase settings:
+
+1. **Authentication → URL Configuration**
+   - Site URL: `https://your-app.vercel.app`
+   - Redirect URLs: Add `https://your-app.vercel.app/**`
+
+2. **Google Cloud Console**
+   - Add `https://your-app.vercel.app` to Authorized JavaScript origins
+   - Ensure `https://[YOUR_PROJECT_ID].supabase.co/auth/v1/callback` is in Authorized redirect URIs
+
+### Subsequent Deployments
+
+For future deployments, simply run:
+
+```bash
+vercel --prod
+```
+
+Or enable GitHub integration in the Vercel dashboard for automatic deployments on push to `main`.
+
+## 6. First-Time Setup
 
 1. Sign in with Google
 2. Your profile will be automatically created

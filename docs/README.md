@@ -116,6 +116,20 @@ npm run test:ui
 npm run load-dishes <host_id>
 ```
 
+## Deployment
+
+Deploy to Vercel with these commands:
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy to production
+vercel --prod
+```
+
+After deployment, add environment variables in Vercel Dashboard and configure Supabase redirect URLs. See [SETUP.md](./SETUP.md#5-deploy-to-production-vercel) for detailed instructions.
+
 ## Testing
 
 This project includes comprehensive end-to-end testing with Playwright:

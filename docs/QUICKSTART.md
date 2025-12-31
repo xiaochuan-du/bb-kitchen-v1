@@ -75,13 +75,31 @@ Visit http://localhost:3000 and:
 ### 5. Deploy to Vercel (5 minutes)
 
 ```bash
-# 1. Push code to GitHub
-# 2. Import project on vercel.com
-# 3. Add environment variables in Vercel dashboard
-# 4. Deploy!
-# 5. Update NEXT_PUBLIC_APP_URL to your production URL
-# 6. Add production URL to Google OAuth redirect URIs
+# Install Vercel CLI
+npm install -g vercel
+
+# Initial deployment (will prompt for login)
+vercel
+
+# Add environment variables
+echo "YOUR_SUPABASE_URL" | vercel env add NEXT_PUBLIC_SUPABASE_URL production
+echo "YOUR_ANON_KEY" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
+echo "YOUR_SERVICE_ROLE_KEY" | vercel env add SUPABASE_SERVICE_ROLE_KEY production
+echo "https://your-app.vercel.app" | vercel env add NEXT_PUBLIC_APP_URL production
+
+# Deploy to production
+vercel --prod
 ```
+
+Then configure Supabase for production:
+1. **Supabase Dashboard → Authentication → URL Configuration**
+   - Site URL: `https://your-app.vercel.app`
+   - Redirect URLs: Add `https://your-app.vercel.app/**`
+
+2. **Google Cloud Console → OAuth credentials**
+   - Add `https://your-app.vercel.app` to Authorized JavaScript origins
+
+See [SETUP.md](./SETUP.md#5-deploy-to-production-vercel) for detailed deployment instructions.
 
 ## How It Works
 
