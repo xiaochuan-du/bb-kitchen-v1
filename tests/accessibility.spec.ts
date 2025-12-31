@@ -16,9 +16,12 @@ test.describe('Accessibility', () => {
   test('landing page should have proper semantic structure', async ({ page }) => {
     await page.goto('/')
 
-    // Check for list elements
-    const lists = page.locator('ul')
-    await expect(lists).toHaveCount(1) // Features list
+    // Check for main sections
+    const forHostsSection = page.getByRole('heading', { name: 'For Hosts' })
+    await expect(forHostsSection).toBeVisible()
+
+    const forGuestsSection = page.getByRole('heading', { name: 'For Guests' })
+    await expect(forGuestsSection).toBeVisible()
   })
 
   test('buttons should be keyboard accessible', async ({ page }) => {
