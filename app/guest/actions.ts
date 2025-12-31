@@ -3,12 +3,22 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 
+type SelectionInsert = Database['public']['Tables']['selections']['Insert']
+type DessertVoteInsert = Database['public']['Tables']['dessert_votes']['Insert']
+
 type SelectionData = {
   guestId: string
   eventId: string
   selectedMainId: string | null
   selectedDessertId: string | null
   magicToken: string
+}
+
+function getServiceClient() {
+  return createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 }
 
 export async function submitGuestSelection({
@@ -18,10 +28,7 @@ export async function submitGuestSelection({
   selectedDessertId,
   magicToken,
 }: SelectionData) {
-  const supabase = createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  const supabase = getServiceClient()
 
   // Verify the guest matches the token
   const { data: guest, error: verifyError } = await supabase
@@ -37,24 +44,26 @@ export async function submitGuestSelection({
   }
 
   // Perform updates
+  const selectionData: SelectionInsert = {
+    guest_id: guestId,
+    event_id: eventId,
+    selected_main_id: selectedMainId,
+  }
   const { error: selectionError } = await supabase
     .from('selections')
-    .upsert({
-      guest_id: guestId,
-      event_id: eventId,
-      selected_main_id: selectedMainId,
-    })
+    .upsert(selectionData, { onConflict: 'guest_id,event_id' })
 
   if (selectionError) throw new Error('Failed to save selection')
 
   if (selectedDessertId) {
+    const voteData: DessertVoteInsert = {
+      guest_id: guestId,
+      event_id: eventId,
+      dessert_id: selectedDessertId,
+    }
     const { error: voteError } = await supabase
       .from('dessert_votes')
-      .upsert({
-        guest_id: guestId,
-        event_id: eventId,
-        dessert_id: selectedDessertId,
-      })
+      .upsert(voteData, { onConflict: 'guest_id,event_id' })
 
     if (voteError) throw new Error('Failed to save dessert vote')
   } else {

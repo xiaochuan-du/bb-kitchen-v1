@@ -45,7 +45,7 @@ export default async function GuestEventPage({
     .select('*')
     .eq('event_id', eventId)
     .eq('magic_token', token)
-    .single()
+    .single<Guest>()
 
   if (guestError || !guest) {
     notFound()
@@ -55,7 +55,7 @@ export default async function GuestEventPage({
     .from('events')
     .select('*')
     .eq('id', eventId)
-    .single()
+    .single<Event>()
 
   if (eventError || !event) {
     notFound()

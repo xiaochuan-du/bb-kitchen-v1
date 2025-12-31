@@ -26,7 +26,7 @@ export default function DishCard({
     const supabase = createClient()
     const { error } = await supabase
       .from('dishes')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', dish.id)
 
     if (!error) {
