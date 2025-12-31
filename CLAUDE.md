@@ -6,6 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 TableMate is a Next.js 16 application for creating curated menu experiences with allergy transparency and democratic dessert voting. Hosts manage dish libraries and events, while guests respond via magic link invitations (no account required).
 
+### Key Features
+
+- **Dish Library**: Progressive loading (10 at a time), category filters, soft delete, back-to-top button
+- **Event Management**: Create events with appetizers, mains, desserts; invite guests via magic links
+- **Guest RSVP**: Guests select main courses and vote on desserts without creating accounts
+- **Order Tracking**: View who ordered what with expandable guest details
+- **Post-Event Feedback**: Survey system for guests to rate dishes (thumbs up/down) with comments
+- **Feedback Dashboard**: Table view showing dish ratings across all guests with comment previews
+
 ## Development Commands
 
 ```bash
@@ -68,11 +77,20 @@ Two separate client configurations:
 4. Upsert to `dessert_votes` table (dessert)
 5. Update `guests.has_responded = true`
 
+**Guest Feedback Submission:**
+1. Host sends feedback survey link to guest after event
+2. Guest opens `/guest/{eventId}/feedback?token={magic_token}`
+3. Guest rates dishes (thumbs up/down) with optional comments
+4. Guest can add overall event comment
+5. Upsert to `dish_feedback` and `event_feedback` tables
+6. Update `guests.has_submitted_feedback = true`
+
 **Host Event Management:**
 1. Host creates dishes in library (with images in Supabase Storage)
 2. Creates event with arrays of dish IDs: `appetizer_ids`, `main_dish_ids`, `dessert_ids`
 3. Adds guests with emails → auto-generated `magic_token`
 4. Event page fetches dishes by ID arrays to display menu
+5. After event, host can view feedback in the Feedback Table
 
 ### Database Schema Key Points
 
@@ -83,6 +101,12 @@ Two separate client configurations:
 - Dish fields:
   - `description`: Guest-facing dish description (optional)
   - `recipe`: Host-only cooking instructions/notes (optional, never shown to guests)
+- Guest tracking:
+  - `has_responded`: Guest submitted menu selections
+  - `has_submitted_feedback`: Guest submitted post-event feedback
+- Feedback tables:
+  - `dish_feedback`: Per-dish ratings (up/down) with optional comments
+  - `event_feedback`: Overall event comments from guests
 
 ### Type Safety
 
@@ -99,19 +123,30 @@ app/
 ├── layout.tsx                      # Root layout with auth context
 ├── api/auth/callback/route.ts      # OAuth callback handler
 ├── host/
-│   ├── page.tsx                    # Dashboard (protected)
+│   ├── page.tsx                    # Dashboard with dish library (protected)
 │   └── events/
 │       ├── new/page.tsx            # Event creation form
-│       └── [eventId]/page.tsx      # Event details + guest invitations
+│       └── [eventId]/page.tsx      # Event details, guest invitations, feedback
 └── guest/
     ├── actions.ts                  # Server Actions for guest mutations
-    └── [eventId]/page.tsx          # Guest RSVP flow (magic token auth)
+    └── [eventId]/
+        ├── page.tsx                # Guest RSVP flow (magic token auth)
+        └── feedback/page.tsx       # Post-event feedback survey
 ```
 
 ### Component Organization
 
-- `components/host/`: Host-only features (DishForm, EventForm, OrderSummary, etc.)
-- `components/guest/`: Guest-facing UI (GuestMenuGallery)
+- `components/host/`: Host-only features
+  - `DishLibrary.tsx`: Dish list with progressive loading (10 at a time), category filters
+  - `DishForm.tsx`, `DishCard.tsx`: Dish creation and display
+  - `EventForm.tsx`, `EventDetails.tsx`: Event management
+  - `GuestInvitations.tsx`: Guest list with order details and feedback email links
+  - `OrderSummary.tsx`: Aggregated order counts and shopping list
+  - `FeedbackTable.tsx`: Dish x guest feedback matrix with ratings and comments
+  - `FeedbackEmailContent.tsx`: Thank-you email template with survey link
+- `components/guest/`: Guest-facing UI
+  - `GuestMenuGallery.tsx`: Menu selection interface
+  - `GuestFeedbackForm.tsx`: Post-event feedback form with dish ratings
 - `components/AuthButton.tsx`: Shared sign-in/sign-out component
 
 ## Environment Variables
@@ -137,6 +172,8 @@ Tests use Page Object Model pattern when appropriate. Dev server auto-starts bef
 Complete SQL schema available in `migrations/` folder with numbered migration files:
 - `01_initial_schema.sql` - Base tables, RLS policies, triggers, storage
 - `02_add_recipe_to_dishes.sql` - Recipe field addition
+- `03_add_soft_delete_to_dishes.sql` - Soft delete for dishes
+- `04_add_feedback_tables.sql` - Guest feedback tables (dish_feedback, event_feedback)
 
 Run migrations in order in Supabase SQL Editor or use migration tools. Full setup instructions in `SETUP.md`.
 
@@ -164,6 +201,20 @@ const { data: dishes } = await supabase
 **Guest invite links:**
 ```typescript
 const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/guest/${eventId}?token=${guest.magic_token}`
+```
+
+**Guest feedback survey links:**
+```typescript
+const feedbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/guest/${eventId}/feedback?token=${guest.magic_token}`
+```
+
+**Progressive loading pattern (DishLibrary):**
+```typescript
+const ITEMS_PER_PAGE = 10
+const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
+const visibleItems = filteredItems.slice(0, visibleCount)
+const hasMore = visibleCount < filteredItems.length
+// Load more: setVisibleCount(prev => prev + ITEMS_PER_PAGE)
 ```
 
 ## Security Considerations
