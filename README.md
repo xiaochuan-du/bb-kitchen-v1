@@ -111,6 +111,9 @@ npm test
 
 # Run tests in UI mode
 npm run test:ui
+
+# Load dishes from JSON files
+npm run load-dishes <host_id>
 ```
 
 ## Testing
