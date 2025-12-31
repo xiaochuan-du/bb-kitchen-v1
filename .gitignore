@@ -14,7 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/  # Commented out - conflicts with Next.js lib/ folder
 lib64/
 parts/
 sdist/
