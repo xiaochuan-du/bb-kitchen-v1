@@ -21,6 +21,7 @@ export interface Database {
           image_url: string | null
           tags: string[]
           category: 'appetizer' | 'main' | 'dessert'
+          deleted_at: string | null
         }
         Insert: {
           id?: string
@@ -33,6 +34,7 @@ export interface Database {
           image_url?: string | null
           tags?: string[]
           category: 'appetizer' | 'main' | 'dessert'
+          deleted_at?: string | null
         }
         Update: {
           id?: string
@@ -45,7 +47,9 @@ export interface Database {
           image_url?: string | null
           tags?: string[]
           category?: 'appetizer' | 'main' | 'dessert'
+          deleted_at?: string | null
         }
+        Relationships: []
       }
       events: {
         Row: {
@@ -87,6 +91,7 @@ export interface Database {
           dessert_ids?: string[]
           main_selection_type?: 'choose_one' | 'fixed'
         }
+        Relationships: []
       }
       guests: {
         Row: {
@@ -119,6 +124,7 @@ export interface Database {
           has_responded?: boolean
           magic_token?: string
         }
+        Relationships: []
       }
       selections: {
         Row: {
@@ -142,6 +148,7 @@ export interface Database {
           event_id?: string
           selected_main_id?: string | null
         }
+        Relationships: []
       }
       dessert_votes: {
         Row: {
@@ -165,6 +172,7 @@ export interface Database {
           event_id?: string
           dessert_id?: string
         }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -191,7 +199,20 @@ export interface Database {
           avatar_url?: string | null
           is_host?: boolean
         }
+        Relationships: []
       }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

@@ -104,7 +104,7 @@ export default function DishForm({
 
     setIsLoading(false)
 
-    if (error) {
+    if (error || !data) {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} dish:`, error)
       alert(`Error ${isEditMode ? 'updating' : 'creating'} dish. Please try again.`)
     } else {

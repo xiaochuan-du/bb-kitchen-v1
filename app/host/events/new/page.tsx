@@ -15,6 +15,7 @@ export default async function NewEventPage() {
   const { data: dishes } = await supabase
     .from('dishes')
     .select('*')
+    .is('deleted_at', null)
     .order('name')
 
   if (!dishes || dishes.length === 0) {

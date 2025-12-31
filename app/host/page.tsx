@@ -15,6 +15,7 @@ export default async function HostDashboard() {
   const { data: dishes } = await supabase
     .from('dishes')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
 
   const { data: events } = await supabase
