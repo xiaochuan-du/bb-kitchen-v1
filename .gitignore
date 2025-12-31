@@ -227,3 +227,4 @@ data/raw
 # not include the .gitkeep file
 !data/raw/.gitkeep
 data/.DS_Store
+.vercel
