@@ -20,6 +20,7 @@ export default function DishForm({
 }) {
   const [name, setName] = useState(initialDish?.name || '')
   const [description, setDescription] = useState(initialDish?.description || '')
+  const [recipe, setRecipe] = useState(initialDish?.recipe || '')
   const [category, setCategory] = useState<'appetizer' | 'main' | 'dessert'>(initialDish?.category || 'main')
   const [ingredients, setIngredients] = useState(initialDish?.ingredients.join('\n') || '')
   const [tags, setTags] = useState(initialDish?.tags.join(', ') || '')
@@ -68,6 +69,7 @@ export default function DishForm({
     const dishData = {
       name,
       description: description || null,
+      recipe: recipe || null,
       category,
       ingredients: ingredients.split('\n').filter(i => i.trim()),
       tags: tags.split(',').map(t => t.trim()).filter(t => t),
@@ -157,6 +159,25 @@ export default function DishForm({
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Brief description of the dish"
           />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Guest-facing description visible on the menu
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Recipe / Cooking Notes
+          </label>
+          <textarea
+            value={recipe}
+            onChange={(e) => setRecipe(e.target.value)}
+            rows={4}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            placeholder="Cooking instructions, preparation steps, or notes for yourself..."
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            For your eyes only - guests will not see this
+          </p>
         </div>
 
         <div>

@@ -1,20 +1,6 @@
-# TableMate - Setup Instructions
+-- Migration 01: Initial Database Schema
+-- TableMate - Create all base tables, RLS policies, triggers, and storage bucket
 
-## 1. Supabase Database Setup
-
-### Create a new Supabase project at https://supabase.com
-
-### Database Migrations
-
-The database schema is available in the `migrations/` folder with numbered migration files:
-- `01_initial_schema.sql` - Initial database schema (tables, RLS policies, triggers, storage)
-- `02_add_recipe_to_dishes.sql` - Add recipe field to dishes table
-
-You can run these migrations in order in the Supabase SQL Editor, or use a migration tool like Supabase CLI.
-
-### Run the following SQL in the Supabase SQL Editor:
-
-```sql
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -45,7 +31,6 @@ CREATE TABLE dishes (
   host_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
-  recipe TEXT,
   ingredients TEXT[] NOT NULL DEFAULT '{}',
   image_url TEXT,
   tags TEXT[] DEFAULT '{}',
@@ -209,73 +194,3 @@ CREATE POLICY "Users can delete their own dish images" ON storage.objects
     bucket_id = 'dish-images'
     AND auth.role() = 'authenticated'
   );
-```
-
-## 2. Configure Google OAuth
-
-### In Supabase Dashboard:
-1. Go to Authentication > Providers
-2. Enable Google provider
-3. Add your Google Client ID and Secret
-
-### In Google Cloud Console (https://console.cloud.google.com):
-1. Create a new project or select existing
-2. Enable Google+ API
-3. Create OAuth 2.0 credentials
-4. Add authorized redirect URIs:
-   - `https://[YOUR_PROJECT_ID].supabase.co/auth/v1/callback`
-   - `http://localhost:3000/api/auth/callback` (for local development)
-5. Copy Client ID and Secret to Supabase
-
-## 3. Environment Variables
-
-Copy `.env.local.example` to `.env.local` and fill in:
-
-```bash
-# From Supabase Dashboard > Settings > API
-NEXT_PUBLIC_SUPABASE_URL=your-project-url.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# From Google Cloud Console
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# Your app URL
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-## 4. Install and Run
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to see the application.
-
-## 5. First-Time Setup
-
-1. Sign in with Google
-2. Your profile will be automatically created
-3. You'll be redirected to the host dashboard
-4. Start by creating your first dish in the Dish Library
-
-## Key Features Implemented
-
-- Google OAuth authentication (no password required)
-- Host Dashboard with dish library management
-- Event creation with smart menu logic
-- Guest invitation system with magic links
-- Visual guest RSVP experience
-- Ingredient transparency with allergy warnings
-- Democratic dessert voting
-- Shopping list and order summary
-- Mobile-responsive design
-
-## Security Notes
-
-- All tables use Row Level Security (RLS)
-- Guests access events via magic tokens (no account required)
-- Hosts can only manage their own dishes and events
-- Images are stored in Supabase Storage with proper access controls
