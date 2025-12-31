@@ -85,6 +85,10 @@ export default async function EventDetailPage({
           <GuestInvitations
             eventId={eventId}
             initialGuests={guests || []}
+            selections={selections || []}
+            votes={votes || []}
+            dishes={dishes || []}
+            event={event}
           />
           <OrderSummary
             event={event}
