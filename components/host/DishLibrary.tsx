@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
 import DishCard from './DishCard'
@@ -8,15 +8,44 @@ import DishForm from './DishForm'
 
 type Dish = Database['public']['Tables']['dishes']['Row']
 
+const DISHES_PER_PAGE = 10
+
 export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }) {
   const [dishes, setDishes] = useState<Dish[]>(initialDishes)
   const [showForm, setShowForm] = useState(false)
   const [editingDish, setEditingDish] = useState<Dish | null>(null)
   const [filter, setFilter] = useState<'all' | 'appetizer' | 'main' | 'dessert'>('all')
+  const [visibleCount, setVisibleCount] = useState(DISHES_PER_PAGE)
+  const [showBackToTop, setShowBackToTop] = useState(false)
 
   const filteredDishes = filter === 'all'
     ? dishes
     : dishes.filter(d => d.category === filter)
+
+  const visibleDishes = filteredDishes.slice(0, visibleCount)
+  const hasMoreDishes = visibleCount < filteredDishes.length
+
+  // Reset visible count when filter changes
+  useEffect(() => {
+    setVisibleCount(DISHES_PER_PAGE)
+  }, [filter])
+
+  // Handle scroll for back to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 400)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + DISHES_PER_PAGE)
+  }
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const handleDishCreated = (newDish: Dish) => {
     setDishes([newDish, ...dishes])
@@ -40,7 +69,8 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
             Dish Library
           </h2>
           <p className="font-sans text-sm text-tertiary">
-            {dishes.length} {dishes.length === 1 ? 'dish' : 'dishes'} in your collection
+            {visibleDishes.length} of {filteredDishes.length} {filteredDishes.length === 1 ? 'dish' : 'dishes'}
+            {filter !== 'all' && ` (${filter})`}
           </p>
         </div>
         <button
@@ -75,11 +105,11 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredDishes.map((dish, index) => (
+        {visibleDishes.map((dish, index) => (
           <div
             key={dish.id}
             className="animate-fade-in-up"
-            style={{ animationDelay: `${index * 0.05}s` }}
+            style={{ animationDelay: `${Math.min(index, 9) * 0.05}s` }}
           >
             {editingDish?.id === dish.id ? (
               <DishForm
@@ -98,6 +128,17 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
           </div>
         ))}
       </div>
+
+      {hasMoreDishes && (
+        <div className="mt-8 text-center">
+          <button
+            onClick={handleLoadMore}
+            className="font-sans px-8 py-3 bg-secondary border border-subtle text-secondary rounded-sm hover:border-[#3D5540] hover:text-[#3D5540] transition-all duration-300 font-medium text-sm tracking-wide hover:shadow-md"
+          >
+            Load More ({filteredDishes.length - visibleCount} remaining)
+          </button>
+        </div>
+      )}
 
       {filteredDishes.length === 0 && (
         <div className="relative text-center py-20 bg-secondary border-2 border-dashed border-subtle rounded-lg overflow-hidden group hover:border-[#9DAA97] transition-all duration-500">
@@ -120,6 +161,25 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
             </p>
           </div>
         </div>
+      )}
+
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 w-12 h-12 bg-[#3D5540] text-white rounded-full shadow-lg hover:bg-[#2d3f30] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex items-center justify-center z-50"
+          aria-label="Back to top"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
       )}
     </div>
   )
