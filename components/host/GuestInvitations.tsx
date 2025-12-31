@@ -5,17 +5,40 @@ import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
 
 type Guest = Database['public']['Tables']['guests']['Row']
+type Selection = Database['public']['Tables']['selections']['Row']
+type DessertVote = Database['public']['Tables']['dessert_votes']['Row']
+type Dish = Database['public']['Tables']['dishes']['Row']
+type Event = Database['public']['Tables']['events']['Row']
 
 export default function GuestInvitations({
   eventId,
   initialGuests,
+  selections = [],
+  votes = [],
+  dishes = [],
+  event,
 }: {
   eventId: string
   initialGuests: Guest[]
+  selections?: Selection[]
+  votes?: DessertVote[]
+  dishes?: Dish[]
+  event?: Event
 }) {
   const [guests, setGuests] = useState<Guest[]>(initialGuests)
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [expandedGuestId, setExpandedGuestId] = useState<string | null>(null)
+
+  const getDishById = (id: string) => dishes.find(d => d.id === id)
+
+  const getGuestSelection = (guestId: string) => {
+    return selections.find(s => s.guest_id === guestId)
+  }
+
+  const getGuestVote = (guestId: string) => {
+    return votes.find(v => v.guest_id === guestId)
+  }
 
   const handleAddGuest = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -93,37 +116,83 @@ export default function GuestInvitations({
       </form>
 
       <div className="space-y-3">
-        {guests.map((guest) => (
-          <div
-            key={guest.id}
-            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-          >
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {guest.email}
-              </p>
-              {guest.has_responded && (
-                <span className="text-xs text-green-600 dark:text-green-400">
-                  ✓ Responded
-                </span>
+        {guests.map((guest) => {
+          const selection = getGuestSelection(guest.id)
+          const vote = getGuestVote(guest.id)
+          const mainDish = selection?.selected_main_id ? getDishById(selection.selected_main_id) : null
+          const dessertDish = vote?.dessert_id ? getDishById(vote.dessert_id) : null
+          const isExpanded = expandedGuestId === guest.id
+
+          return (
+            <div
+              key={guest.id}
+              className="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-3">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {guest.email}
+                  </p>
+                  {guest.has_responded ? (
+                    <button
+                      onClick={() => setExpandedGuestId(isExpanded ? null : guest.id)}
+                      className="text-xs text-green-600 dark:text-green-400 hover:underline flex items-center gap-1"
+                    >
+                      ✓ Responded
+                      <svg
+                        className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Awaiting response
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => copyInviteLink(guest)}
+                    className="text-sm px-3 py-1 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 rounded hover:bg-orange-200 dark:hover:bg-orange-800 transition"
+                  >
+                    Copy Link
+                  </button>
+                  <button
+                    onClick={() => handleRemoveGuest(guest.id)}
+                    className="text-sm px-3 py-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded transition"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              {isExpanded && guest.has_responded && (
+                <div className="px-3 pb-3 pt-1 border-t border-gray-200 dark:border-gray-600">
+                  <div className="text-xs space-y-1.5">
+                    {event?.main_selection_type === 'choose_one' && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500 dark:text-gray-400 font-medium">Main:</span>
+                        <span className="text-gray-900 dark:text-white">
+                          {mainDish?.name || 'Not selected'}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-500 dark:text-gray-400 font-medium">Dessert Vote:</span>
+                      <span className="text-gray-900 dark:text-white">
+                        {dessertDish?.name || 'Not voted'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => copyInviteLink(guest)}
-                className="text-sm px-3 py-1 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 rounded hover:bg-orange-200 dark:hover:bg-orange-800 transition"
-              >
-                Copy Link
-              </button>
-              <button
-                onClick={() => handleRemoveGuest(guest.id)}
-                className="text-sm px-3 py-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded transition"
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {guests.length === 0 && (
