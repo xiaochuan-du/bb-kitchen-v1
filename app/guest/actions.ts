@@ -5,6 +5,8 @@ import type { Database } from '@/types/database'
 
 type SelectionInsert = Database['public']['Tables']['selections']['Insert']
 type DessertVoteInsert = Database['public']['Tables']['dessert_votes']['Insert']
+type DishFeedbackInsert = Database['public']['Tables']['dish_feedback']['Insert']
+type EventFeedbackInsert = Database['public']['Tables']['event_feedback']['Insert']
 
 type SelectionData = {
   guestId: string
@@ -80,6 +82,89 @@ export async function submitGuestSelection({
   const { error: guestError } = await supabase
     .from('guests')
     .update({ has_responded: true })
+    .eq('id', guestId)
+
+  if (guestError) throw new Error('Failed to update guest status')
+
+  return { success: true }
+}
+
+type FeedbackData = {
+  guestId: string
+  eventId: string
+  magicToken: string
+  dishFeedback: Array<{
+    dishId: string
+    rating: 'up' | 'down'
+    comment: string | null
+  }>
+  eventComment: string | null
+}
+
+export async function submitGuestFeedback({
+  guestId,
+  eventId,
+  magicToken,
+  dishFeedback,
+  eventComment,
+}: FeedbackData) {
+  const supabase = getServiceClient()
+
+  // Verify the guest matches the token
+  const { data: guest, error: verifyError } = await supabase
+    .from('guests')
+    .select('id')
+    .eq('id', guestId)
+    .eq('event_id', eventId)
+    .eq('magic_token', magicToken)
+    .single()
+
+  if (verifyError || !guest) {
+    throw new Error('Invalid guest or token')
+  }
+
+  // Submit dish feedback
+  for (const feedback of dishFeedback) {
+    const feedbackData: DishFeedbackInsert = {
+      guest_id: guestId,
+      event_id: eventId,
+      dish_id: feedback.dishId,
+      rating: feedback.rating,
+      comment: feedback.comment,
+    }
+
+    const { error: feedbackError } = await supabase
+      .from('dish_feedback')
+      .upsert(feedbackData, { onConflict: 'guest_id,dish_id' })
+
+    if (feedbackError) {
+      console.error('Failed to save dish feedback:', feedbackError)
+      throw new Error('Failed to save dish feedback')
+    }
+  }
+
+  // Submit event feedback if provided
+  if (eventComment) {
+    const eventFeedbackData: EventFeedbackInsert = {
+      guest_id: guestId,
+      event_id: eventId,
+      comment: eventComment,
+    }
+
+    const { error: eventFeedbackError } = await supabase
+      .from('event_feedback')
+      .upsert(eventFeedbackData, { onConflict: 'guest_id,event_id' })
+
+    if (eventFeedbackError) {
+      console.error('Failed to save event feedback:', eventFeedbackError)
+      throw new Error('Failed to save event feedback')
+    }
+  }
+
+  // Update guest status
+  const { error: guestError } = await supabase
+    .from('guests')
+    .update({ has_submitted_feedback: true })
     .eq('id', guestId)
 
   if (guestError) throw new Error('Failed to update guest status')

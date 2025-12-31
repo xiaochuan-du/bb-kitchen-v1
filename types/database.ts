@@ -102,6 +102,7 @@ export interface Database {
           name: string | null
           google_id: string | null
           has_responded: boolean
+          has_submitted_feedback: boolean
           magic_token: string
         }
         Insert: {
@@ -112,6 +113,7 @@ export interface Database {
           name?: string | null
           google_id?: string | null
           has_responded?: boolean
+          has_submitted_feedback?: boolean
           magic_token?: string
         }
         Update: {
@@ -122,6 +124,7 @@ export interface Database {
           name?: string | null
           google_id?: string | null
           has_responded?: boolean
+          has_submitted_feedback?: boolean
           magic_token?: string
         }
         Relationships: []
@@ -171,6 +174,60 @@ export interface Database {
           guest_id?: string
           event_id?: string
           dessert_id?: string
+        }
+        Relationships: []
+      }
+      dish_feedback: {
+        Row: {
+          id: string
+          created_at: string
+          guest_id: string
+          event_id: string
+          dish_id: string
+          rating: 'up' | 'down'
+          comment: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          guest_id: string
+          event_id: string
+          dish_id: string
+          rating: 'up' | 'down'
+          comment?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          guest_id?: string
+          event_id?: string
+          dish_id?: string
+          rating?: 'up' | 'down'
+          comment?: string | null
+        }
+        Relationships: []
+      }
+      event_feedback: {
+        Row: {
+          id: string
+          created_at: string
+          guest_id: string
+          event_id: string
+          comment: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          guest_id: string
+          event_id: string
+          comment?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          guest_id?: string
+          event_id?: string
+          comment?: string | null
         }
         Relationships: []
       }

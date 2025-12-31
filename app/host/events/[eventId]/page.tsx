@@ -5,6 +5,7 @@ import Link from 'next/link'
 import EventDetails from '@/components/host/EventDetails'
 import GuestInvitations from '@/components/host/GuestInvitations'
 import OrderSummary from '@/components/host/OrderSummary'
+import FeedbackTable from '@/components/host/FeedbackTable'
 import type { Database } from '@/types/database'
 
 type Event = Database['public']['Tables']['events']['Row']
@@ -12,6 +13,8 @@ type Guest = Database['public']['Tables']['guests']['Row']
 type Dish = Database['public']['Tables']['dishes']['Row']
 type Selection = Database['public']['Tables']['selections']['Row']
 type DessertVote = Database['public']['Tables']['dessert_votes']['Row']
+type DishFeedback = Database['public']['Tables']['dish_feedback']['Row']
+type EventFeedback = Database['public']['Tables']['event_feedback']['Row']
 
 export default async function EventDetailPage({
   params,
@@ -66,6 +69,16 @@ export default async function EventDetailPage({
     .select('*')
     .eq('event_id', eventId)
 
+  const { data: dishFeedback } = await supabase
+    .from('dish_feedback')
+    .select('*')
+    .eq('event_id', eventId)
+
+  const { data: eventFeedback } = await supabase
+    .from('event_feedback')
+    .select('*')
+    .eq('event_id', eventId)
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <HostNav user={user} />
@@ -96,6 +109,16 @@ export default async function EventDetailPage({
             guests={guests || []}
             selections={selections || []}
             votes={votes || []}
+          />
+        </div>
+
+        <div className="mt-8">
+          <FeedbackTable
+            event={event}
+            dishes={dishes || []}
+            guests={guests || []}
+            dishFeedback={dishFeedback || []}
+            eventFeedback={eventFeedback || []}
           />
         </div>
       </main>
