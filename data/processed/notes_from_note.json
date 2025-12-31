@@ -16,10 +16,10 @@
       "不盖盖子，上锅蒸 20 分钟。"
     ],
     "notes": "以上是一碗的量。",
-    "image": ""
+    "image": "https://pic1.zhimg.com/v2-53c833910793232a3f1d97b55643745d_720w.jpg?source=172ae18b"
   },
   {
-    "name": "白萝卜猪肉馅",
+    "name": "白萝卜猪肉馅饺子",
     "ingredients": [
       "白萝卜",
       "猪肉馅",
@@ -40,7 +40,14 @@
       "肉馅朝一个方向搅拌至上劲后加入白萝卜，搅拌均匀即可。"
     ],
     "notes": "盐味稍重点；葱也可用葱头替代。",
-    "image": ""
+    "category": "main",
+    "tags": [
+      "#ChineseFood",
+      "#HomeCooking",
+      "#Dumplings",
+      "#FamilyDinner"
+    ],
+    "image": "data/raw/small_images/IMG_8854.png"
   },
   {
     "name": "丸子",
@@ -68,7 +75,7 @@
       "水开后转小火慢慢煮，如果是香菇建议先煮熟。"
     ],
     "notes": "肉沫调清一点才嫩；煮的时候水开关小火慢煮，不容易煮散。",
-    "image": ""
+    "image": "data/raw/small_images/Screenshot 2025-12-30 at 3.13.32 pm.png"
   },
   {
     "name": "发糕",
@@ -86,7 +93,7 @@
       "中大火蒸 40 分钟，熄火后焖 5 分钟。"
     ],
     "notes": "米糊一定要打得细腻。",
-    "image": ""
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbmSYDkyBin9GeLghX_n-V_A1MNUH-SOS9NA&s"
   },
   {
     "name": "大拌菜",
@@ -109,7 +116,7 @@
       "最后撒上花生装饰。"
     ],
     "notes": "口味偏酸甜重口。",
-    "image": ""
+    "image": "https://img.soundofhope.org/2020-05/4-1589015294069.jpg"
   },
   {
     "name": "牛肉馅饼",
@@ -124,7 +131,15 @@
       "包入馅料后进行烙制。"
     ],
     "notes": "面水比例较高，面团较软。",
-    "image": ""
+    "category": "main",
+    "tags": [
+      "#homemade",
+      "#chinesefood",
+      "#meatpie",
+      "#delicious",
+      "#comfortfood"
+    ],
+    "image": "data/raw/small_images/IMG_7642.png"
   },
   {
     "name": "Pad Kra Pao (泰式罗勒叶鸡肉饭)",
@@ -152,7 +167,15 @@
       "搭配白米饭和一颗溏心荷包蛋。"
     ],
     "notes": "无需额外加盐；配黄瓜片和番茄片更解腻。",
-    "image": ""
+    "category": "main",
+    "tags": [
+      "#ThaiFood",
+      "#PadKrapow",
+      "#StreetFood",
+      "#东南亚风味",
+      "#简餐"
+    ],
+    "image": "data/raw/small_images/IMG_7214.png"
   },
   {
     "name": "牛肉牛筋煲",
@@ -192,7 +215,7 @@
       "可加入白萝卜、豆腐、白菜、粉条或火锅底料进行再加工。"
     ],
     "notes": "汤底过筛后更干净。",
-    "image": ""
+    "image": "https://imgproxy.icook.network/safe/rt:fit/w:1200/el:0/q:80/plain/http://tokyo-kitchen.icook.tw.s3.amazonaws.com/uploads/recipe/cover/440324/694a2e944e771ff4.jpg"
   },
   {
     "name": "汉堡排",
@@ -210,7 +233,7 @@
       "整形成 8 份汉堡排进行煎制。"
     ],
     "notes": "洋葱一定要先炒熟。",
-    "image": ""
+    "image": "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/765ec016f33664d856818aa4acc68f33/Derivates/3dc5ba32e47f3402c357c216f588f48b2f1aa37a.jpg"
   },
   {
     "name": "昭和洋食 (酱汁)",
