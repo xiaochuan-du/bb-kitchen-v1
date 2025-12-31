@@ -8,7 +8,7 @@ test.describe('Landing Page', () => {
     await expect(page.getByRole('heading', { name: 'Table Mate' })).toBeVisible()
 
     // Check tagline
-    await expect(page.getByText('Curated menu experiences for hosting with care')).toBeVisible()
+    await expect(page.getByText('Thoughtful menu experiences for hosting with intention')).toBeVisible()
 
     // Check sign-in button
     await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible()
@@ -25,9 +25,9 @@ test.describe('Landing Page', () => {
     await page.goto('/')
 
     // Check features are visible
-    await expect(page.getByText('Build your dish library with images and ingredients')).toBeVisible()
-    await expect(page.getByText('Create events with smart menu logic')).toBeVisible()
-    await expect(page.getByText('Send magic links to guests via email')).toBeVisible()
-    await expect(page.getByText('Get a complete shopping list 48 hours before')).toBeVisible()
+    await expect(page.getByText('Curate dishes with images, ingredients, and detailed notes')).toBeVisible()
+    await expect(page.getByText('Create events with intelligent menu composition')).toBeVisible()
+    await expect(page.getByText('Send elegant magic links directly to your guests')).toBeVisible()
+    await expect(page.getByText('Receive a complete shopping list 48 hours in advance')).toBeVisible()
   })
 })
