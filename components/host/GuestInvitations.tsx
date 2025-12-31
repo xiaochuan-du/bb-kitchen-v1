@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
+import FeedbackEmailContent from './FeedbackEmailContent'
 
 type Guest = Database['public']['Tables']['guests']['Row']
 type Selection = Database['public']['Tables']['selections']['Row']
@@ -171,7 +172,7 @@ export default function GuestInvitations({
               </div>
 
               {isExpanded && guest.has_responded && (
-                <div className="px-3 pb-3 pt-1 border-t border-gray-200 dark:border-gray-600">
+                <div className="px-3 pb-3 pt-1 border-t border-gray-200 dark:border-gray-600 space-y-4">
                   <div className="text-xs space-y-1.5">
                     {event?.main_selection_type === 'choose_one' && (
                       <div className="flex items-center gap-2">
@@ -187,7 +188,21 @@ export default function GuestInvitations({
                         {dessertDish?.name || 'Not voted'}
                       </span>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-500 dark:text-gray-400 font-medium">Feedback:</span>
+                      <span className={`${guest.has_submitted_feedback ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+                        {guest.has_submitted_feedback ? 'Submitted' : 'Not yet submitted'}
+                      </span>
+                    </div>
                   </div>
+
+                  {event && (
+                    <FeedbackEmailContent
+                      event={event}
+                      guest={guest}
+                      eventId={eventId}
+                    />
+                  )}
                 </div>
               )}
             </div>
