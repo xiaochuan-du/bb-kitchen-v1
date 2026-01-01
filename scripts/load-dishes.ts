@@ -2,7 +2,7 @@
  * Script to load dishes from data/processed/ JSON files into the database
  *
  * Usage:
- *   npx tsx scripts/load-dishes.ts <host_id>
+ *   npx tsx scripts/load-dishes.ts <group_id>
  *
  * Example:
  *   npx tsx scripts/load-dishes.ts 123e4567-e89b-12d3-a456-426614174000
@@ -10,7 +10,7 @@
  * Requirements:
  *   - NEXT_PUBLIC_SUPABASE_URL in .env.local
  *   - SUPABASE_SERVICE_ROLE_KEY in .env.local
- *   - Host user must exist in database
+ *   - Group must exist in database
  */
 
 import { config } from 'dotenv'
@@ -44,18 +44,18 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
   process.exit(1)
 }
 
-// Get host ID from command line
-const hostId = process.argv[2]
-if (!hostId) {
-  console.error('Error: Missing host_id parameter')
-  console.error('Usage: npx tsx scripts/load-dishes.ts <host_id>')
+// Get group ID from command line
+const groupId = process.argv[2]
+if (!groupId) {
+  console.error('Error: Missing group_id parameter')
+  console.error('Usage: npx tsx scripts/load-dishes.ts <group_id>')
   process.exit(1)
 }
 
 // Validate UUID format
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-if (!uuidRegex.test(hostId)) {
-  console.error('Error: Invalid host_id format. Must be a valid UUID.')
+if (!uuidRegex.test(groupId)) {
+  console.error('Error: Invalid group_id format. Must be a valid UUID.')
   process.exit(1)
 }
 
@@ -139,7 +139,7 @@ async function getImageBuffer(imagePath: string): Promise<{ buffer: Buffer; file
  */
 async function uploadImageToStorage(
   imagePath: string,
-  hostId: string,
+  groupId: string,
   dishName: string
 ): Promise<string | null> {
   try {
@@ -149,7 +149,7 @@ async function uploadImageToStorage(
     const ext = extname(filename) || '.jpg'
     const sanitizedDishName = dishName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()
     const timestamp = Date.now()
-    const storagePath = `${hostId}/${sanitizedDishName}_${timestamp}${ext}`
+    const storagePath = `${groupId}/${sanitizedDishName}_${timestamp}${ext}`
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
@@ -193,19 +193,19 @@ function getContentType(ext: string): string {
 /**
  * Transform raw dish data to database insert format
  */
-async function transformDish(raw: RawDish, hostId: string): Promise<DishInsert> {
+async function transformDish(raw: RawDish, groupId: string): Promise<DishInsert> {
   // Handle image upload if present
   let imageUrl: string | null = null
   if (raw.image) {
     console.log(`   📸 Processing image for "${raw.name}"...`)
-    imageUrl = await uploadImageToStorage(raw.image, hostId, raw.name)
+    imageUrl = await uploadImageToStorage(raw.image, groupId, raw.name)
     if (imageUrl) {
       console.log(`   ✅ Image uploaded successfully`)
     }
   }
 
   return {
-    host_id: hostId,
+    group_id: groupId,
     name: raw.name,
     description: raw.notes || null,
     recipe: processToRecipe(raw.process, undefined),
@@ -236,23 +236,22 @@ async function main() {
   console.log('🍳 TableMate Dish Loader')
   console.log('========================\n')
 
-  // Verify host exists
-  console.log(`Verifying host: ${hostId}`)
-  const { data: host, error: hostError } = await supabase
-    .from('profiles')
-    .select('id, email, name')
-    .eq('id', hostId)
+  // Verify group exists
+  console.log(`Verifying group: ${groupId}`)
+  const { data: group, error: groupError } = await supabase
+    .from('groups')
+    .select('id, name, description')
+    .eq('id', groupId)
     .single()
 
-  if (hostError || !host) {
-    console.error(`❌ Error: Host with ID ${hostId} not found in database`)
-    console.error('Please create the host user first or use a valid host_id')
+  if (groupError || !group) {
+    console.error(`❌ Error: Group with ID ${groupId} not found in database`)
+    console.error('Please create the group first or use a valid group_id')
     process.exit(1)
   }
 
-  const hostEmail = (host as any).email || 'unknown'
-  const hostName = (host as any).name || ''
-  console.log(`✅ Host found: ${hostEmail} ${hostName ? `(${hostName})` : ''}\n`)
+  const groupName = (group as any).name || 'Unknown'
+  console.log(`✅ Group found: ${groupName}\n`)
 
   // Load dishes from both files
   const dataDir = join(process.cwd(), 'data', 'processed')
@@ -297,7 +296,7 @@ async function main() {
 
     try {
       // Transform dish (includes image upload)
-      const transformedDish = await transformDish(rawDish, hostId)
+      const transformedDish = await transformDish(rawDish, groupId)
 
       if (transformedDish.image_url) {
         imagesUploaded++

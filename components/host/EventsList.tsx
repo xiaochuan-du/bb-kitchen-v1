@@ -6,7 +6,12 @@ import type { Database } from '@/types/database'
 
 type Event = Database['public']['Tables']['events']['Row']
 
-export default function EventsList({ initialEvents }: { initialEvents: Event[] }) {
+interface EventsListProps {
+  initialEvents: Event[]
+  groupId: string
+}
+
+export default function EventsList({ initialEvents, groupId }: EventsListProps) {
   const [events] = useState<Event[]>(initialEvents)
 
   const getStatusStyles = (status: string) => {
@@ -30,7 +35,7 @@ export default function EventsList({ initialEvents }: { initialEvents: Event[] }
           </p>
         </div>
         <Link
-          href="/host/events/new"
+          href={`/host/events/new?group=${groupId}`}
           className="font-sans px-5 py-2.5 bg-[#C17254] text-white rounded-sm hover:bg-[#8B7355] transition-all duration-300 font-medium text-sm tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5"
         >
           + New Event
@@ -82,7 +87,7 @@ export default function EventsList({ initialEvents }: { initialEvents: Event[] }
               Create your first event to start hosting
             </p>
             <Link
-              href="/host/events/new"
+              href={`/host/events/new?group=${groupId}`}
               className="inline-block font-sans px-6 py-3 bg-[#C17254] text-white rounded-sm hover:bg-[#8B7355] transition-all duration-300 font-medium text-sm tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               Create Your First Event

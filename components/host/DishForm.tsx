@@ -7,17 +7,21 @@ import { canCreateEventsAndDishes } from '@/lib/auth/permissions'
 
 type Dish = Database['public']['Tables']['dishes']['Row']
 
+interface DishFormProps {
+  onSuccess: (dish: Dish) => void
+  onCancel: () => void
+  initialDish?: Dish | null
+  isEditMode?: boolean
+  groupId: string
+}
+
 export default function DishForm({
   onSuccess,
   onCancel,
   initialDish = null,
   isEditMode = false,
-}: {
-  onSuccess: (dish: Dish) => void
-  onCancel: () => void
-  initialDish?: Dish | null
-  isEditMode?: boolean
-}) {
+  groupId,
+}: DishFormProps) {
   const [name, setName] = useState(initialDish?.name || '')
   const [description, setDescription] = useState(initialDish?.description || '')
   const [recipe, setRecipe] = useState(initialDish?.recipe || '')
@@ -94,8 +98,8 @@ export default function DishForm({
         .from('dishes')
         .insert({
           ...dishData,
-          host_id: user.id,
-        } as never)
+          group_id: groupId,
+        })
         .select()
         .single()
       data = result.data

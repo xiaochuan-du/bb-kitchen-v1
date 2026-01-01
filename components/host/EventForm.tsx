@@ -8,7 +8,12 @@ import { canCreateEventsAndDishes } from '@/lib/auth/permissions'
 
 type Dish = Database['public']['Tables']['dishes']['Row']
 
-export default function EventForm({ dishes }: { dishes: Dish[] }) {
+interface EventFormProps {
+  dishes: Dish[]
+  groupId: string
+}
+
+export default function EventForm({ dishes, groupId }: EventFormProps) {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [eventDate, setEventDate] = useState('')
@@ -67,7 +72,7 @@ export default function EventForm({ dishes }: { dishes: Dish[] }) {
     const { data, error } = await supabase
       .from('events')
       .insert({
-        host_id: user.id,
+        group_id: groupId,
         title,
         event_date: new Date(eventDate).toISOString(),
         description: description || null,
@@ -76,7 +81,7 @@ export default function EventForm({ dishes }: { dishes: Dish[] }) {
         main_dish_ids: selectedMains,
         dessert_ids: selectedDesserts,
         main_selection_type: mainSelectionType,
-      } as any)
+      })
       .select()
       .single()
 
@@ -86,7 +91,7 @@ export default function EventForm({ dishes }: { dishes: Dish[] }) {
       console.error('Error creating event:', error)
       alert('Error creating event. Please try again.')
     } else if (data) {
-      router.push(`/host/events/${(data as any).id}`)
+      router.push(`/host/events/${data.id}`)
     }
   }
 

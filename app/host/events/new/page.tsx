@@ -3,8 +3,14 @@ import { redirect } from 'next/navigation'
 import EventForm from '@/components/host/EventForm'
 import HostNav from '@/components/host/HostNav'
 import Link from 'next/link'
+import { getUserGroups, getActiveGroup } from '@/lib/supabase/groups'
 
-export default async function NewEventPage() {
+export default async function NewEventPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ group?: string }>
+}) {
+  const { group: groupParam } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -12,16 +18,26 @@ export default async function NewEventPage() {
     redirect('/')
   }
 
+  // Get user's groups and active group
+  const groups = await getUserGroups()
+  const activeGroup = await getActiveGroup(groupParam)
+
+  if (!activeGroup) {
+    redirect('/')
+  }
+
+  // Fetch dishes for the active group
   const { data: dishes } = await supabase
     .from('dishes')
     .select('*')
+    .eq('group_id', activeGroup.id)
     .is('deleted_at', null)
     .order('name')
 
   if (!dishes || dishes.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <HostNav user={user} />
+        <HostNav user={user} groups={groups} currentGroupId={activeGroup.id} />
         <main className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
@@ -31,7 +47,7 @@ export default async function NewEventPage() {
               You need to add dishes to your library before creating an event.
             </p>
             <Link
-              href="/host"
+              href={`/host?group=${activeGroup.id}`}
               className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium"
             >
               Go to Dashboard
@@ -44,11 +60,11 @@ export default async function NewEventPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <HostNav user={user} />
+      <HostNav user={user} groups={groups} currentGroupId={activeGroup.id} />
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">
           <Link
-            href="/host"
+            href={`/host?group=${activeGroup.id}`}
             className="text-orange-600 dark:text-orange-400 hover:underline text-sm"
           >
             ← Back to Dashboard
@@ -57,7 +73,7 @@ export default async function NewEventPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
           Create New Event
         </h1>
-        <EventForm dishes={dishes} />
+        <EventForm dishes={dishes} groupId={activeGroup.id} />
       </main>
     </div>
   )

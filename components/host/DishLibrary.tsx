@@ -10,7 +10,12 @@ type Dish = Database['public']['Tables']['dishes']['Row']
 
 const DISHES_PER_PAGE = 10
 
-export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }) {
+interface DishLibraryProps {
+  initialDishes: Dish[]
+  groupId: string
+}
+
+export default function DishLibrary({ initialDishes, groupId }: DishLibraryProps) {
   const [dishes, setDishes] = useState<Dish[]>(initialDishes)
   const [showForm, setShowForm] = useState(false)
   const [editingDish, setEditingDish] = useState<Dish | null>(null)
@@ -84,7 +89,7 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
 
       {showForm && (
         <div className="mb-8 animate-scale-in">
-          <DishForm onSuccess={handleDishCreated} onCancel={() => setShowForm(false)} />
+          <DishForm onSuccess={handleDishCreated} onCancel={() => setShowForm(false)} groupId={groupId} />
         </div>
       )}
 
@@ -117,6 +122,7 @@ export default function DishLibrary({ initialDishes }: { initialDishes: Dish[] }
                 isEditMode={true}
                 onSuccess={handleDishUpdated}
                 onCancel={() => setEditingDish(null)}
+                groupId={groupId}
               />
             ) : (
               <DishCard

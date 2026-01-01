@@ -7,6 +7,7 @@ import GuestInvitations from '@/components/host/GuestInvitations'
 import OrderSummary from '@/components/host/OrderSummary'
 import FeedbackTable from '@/components/host/FeedbackTable'
 import type { Database } from '@/types/database'
+import { getUserGroups, validateGroupAccess } from '@/lib/supabase/groups'
 
 type Event = Database['public']['Tables']['events']['Row']
 type Guest = Database['public']['Tables']['guests']['Row']
@@ -39,9 +40,14 @@ export default async function EventDetailPage({
     notFound()
   }
 
-  if (event.host_id !== user.id) {
+  // Validate user has access to this event's group
+  const groupAccess = await validateGroupAccess(event.group_id)
+  if (!groupAccess) {
     redirect('/host')
   }
+
+  // Get all groups for the nav
+  const groups = await getUserGroups()
 
   const { data: guests } = await supabase
     .from('guests')
@@ -81,11 +87,11 @@ export default async function EventDetailPage({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <HostNav user={user} />
+      <HostNav user={user} groups={groups} currentGroupId={event.group_id} />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-6">
           <Link
-            href="/host"
+            href={`/host?group=${event.group_id}`}
             className="text-orange-600 dark:text-orange-400 hover:underline text-sm"
           >
             ← Back to Dashboard

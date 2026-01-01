@@ -13,7 +13,7 @@ export interface Database {
         Row: {
           id: string
           created_at: string
-          host_id: string
+          group_id: string
           name: string
           description: string | null
           recipe: string | null
@@ -26,7 +26,7 @@ export interface Database {
         Insert: {
           id?: string
           created_at?: string
-          host_id: string
+          group_id: string
           name: string
           description?: string | null
           recipe?: string | null
@@ -39,7 +39,7 @@ export interface Database {
         Update: {
           id?: string
           created_at?: string
-          host_id?: string
+          group_id?: string
           name?: string
           description?: string | null
           recipe?: string | null
@@ -55,7 +55,7 @@ export interface Database {
         Row: {
           id: string
           created_at: string
-          host_id: string
+          group_id: string
           title: string
           event_date: string
           description: string | null
@@ -68,7 +68,7 @@ export interface Database {
         Insert: {
           id?: string
           created_at?: string
-          host_id: string
+          group_id: string
           title: string
           event_date: string
           description?: string | null
@@ -81,7 +81,7 @@ export interface Database {
         Update: {
           id?: string
           created_at?: string
-          host_id?: string
+          group_id?: string
           title?: string
           event_date?: string
           description?: string | null
@@ -90,6 +90,57 @@ export interface Database {
           main_dish_ids?: string[]
           dessert_ids?: string[]
           main_selection_type?: 'choose_one' | 'fixed'
+        }
+        Relationships: []
+      }
+      groups: {
+        Row: {
+          id: string
+          created_at: string
+          name: string
+          description: string | null
+          owner_id: string
+          is_personal: boolean
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          name: string
+          description?: string | null
+          owner_id: string
+          is_personal?: boolean
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          name?: string
+          description?: string | null
+          owner_id?: string
+          is_personal?: boolean
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          id: string
+          created_at: string
+          group_id: string
+          user_id: string
+          role: 'owner' | 'admin' | 'member'
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          group_id: string
+          user_id: string
+          role?: 'owner' | 'admin' | 'member'
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          group_id?: string
+          user_id?: string
+          role?: 'owner' | 'admin' | 'member'
         }
         Relationships: []
       }
