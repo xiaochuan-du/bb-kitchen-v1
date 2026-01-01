@@ -188,5 +188,13 @@ CREATE POLICY "Group members can manage guests for their events" ON guests
     )
   );
 
+-- ============================================
+-- STEP 16: Allow authenticated users to look up profiles (for adding group members)
+-- ============================================
+DROP POLICY IF EXISTS "Authenticated users can view profiles" ON profiles;
+
+CREATE POLICY "Authenticated users can view profiles" ON profiles
+  FOR SELECT USING (auth.role() = 'authenticated');
+
 -- Done!
 SELECT 'RLS recursion fix complete!' as status;
