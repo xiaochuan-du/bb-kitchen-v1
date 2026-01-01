@@ -228,3 +228,4 @@ data/raw
 !data/raw/.gitkeep
 data/.DS_Store
 .vercel
+.DS_Store
