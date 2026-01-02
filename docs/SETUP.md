@@ -1,6 +1,8 @@
 # TableMate - Setup Instructions
 
-## 1. Supabase Database Setup
+> **Tip:** For local development, use the Docker-based Supabase stack instead. See [LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md) for the recommended development workflow.
+
+## 1. Supabase Database Setup (Cloud)
 
 ### Create a new Supabase project at https://supabase.com
 

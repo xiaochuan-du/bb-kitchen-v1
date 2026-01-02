@@ -217,6 +217,10 @@ next-env.d.ts
 # Environment variables
 .env*.local
 
+# Supabase local development
+# Note: supabase/ folder has its own .gitignore for .temp and .branches
+# Keep .env.local.docker tracked for team reference (contains only local defaults)
+
 # Playwright
 /test-results/
 /playwright-report/

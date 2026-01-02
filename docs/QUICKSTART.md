@@ -26,7 +26,23 @@ A complete, production-ready MVP that meets all your specifications:
 
 ## Next Steps to Launch
 
-### 1. Set Up Supabase (10-15 minutes)
+### Option A: Local Development (Recommended)
+
+Start with local Supabase via Docker - no cloud account needed:
+
+```bash
+# 1. Start local Supabase (first run downloads ~1GB Docker images)
+npm run supabase:start
+
+# 2. Run the app with local environment
+npm run dev:local
+
+# 3. Open http://localhost:3000
+```
+
+See [LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md) for full details.
+
+### Option B: Cloud Supabase Setup (10-15 minutes)
 
 ```bash
 # 1. Create account at supabase.com
@@ -175,6 +191,7 @@ npm run build
 
 ## Support
 
+- Local development: [LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md)
 - Full setup instructions: [SETUP.md](./SETUP.md)
 - Project README: [README.md](./README.md)
 - Next.js docs: https://nextjs.org/docs

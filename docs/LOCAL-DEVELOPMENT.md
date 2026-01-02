@@ -1,0 +1,242 @@
+# Local Development with Supabase (Docker)
+
+This guide covers setting up and using the local Supabase development environment for TableMate.
+
+## Overview
+
+The local development stack runs a complete Supabase instance in Docker, providing:
+- Full environment isolation from production
+- Instant database resets for testing
+- Local email testing via Mailpit
+- No cloud dependencies during development
+
+## Prerequisites
+
+- **Docker Desktop** - Running and with sufficient resources allocated
+- **Node.js 18+** - For running the Next.js app and Supabase CLI
+
+## Quick Start
+
+```bash
+# 1. Start the local Supabase stack (first run downloads ~1GB of Docker images)
+npm run supabase:start
+
+# 2. Start Next.js dev server with local Supabase
+npm run dev:local
+
+# 3. Open the app
+open http://localhost:3000
+```
+
+## Local Services
+
+Once running, you have access to these local services:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **App** | http://localhost:3000 | Your Next.js application |
+| **Supabase Studio** | http://127.0.0.1:54323 | Database GUI, auth management |
+| **API (REST)** | http://127.0.0.1:54321/rest/v1 | PostgREST API |
+| **API (GraphQL)** | http://127.0.0.1:54321/graphql/v1 | GraphQL endpoint |
+| **Mailpit** | http://127.0.0.1:54324 | Email testing inbox |
+| **Database** | postgresql://postgres:postgres@127.0.0.1:54322/postgres | Direct Postgres connection |
+
+## NPM Scripts
+
+```bash
+# Development
+npm run dev:local          # Start Next.js with local Supabase env vars
+
+# Testing
+npm run test:local         # Run Playwright tests against local Supabase
+
+# Supabase Management
+npm run supabase:start     # Start all Docker containers
+npm run supabase:stop      # Stop containers (preserves data in Docker volumes)
+npm run supabase:status    # Show service URLs and connection info
+npm run supabase:reset     # Reset DB, re-run migrations, re-seed data
+
+# Database Operations
+npm run supabase:migrate   # Apply pending migrations
+npm run supabase:diff      # Generate migration from schema changes
+npm run supabase:generate-types  # Regenerate TypeScript types from local DB
+```
+
+## Environment Files
+
+| File | Purpose | Git Status |
+|------|---------|------------|
+| `.env.local.docker` | Local development credentials | Tracked (safe defaults) |
+| `.env.local` | Active environment (auto-created) | Ignored |
+
+The `dev:local` and `test:local` scripts automatically copy `.env.local.docker` to `.env.local`.
+
+## Database Migrations
+
+Migrations are stored in `supabase/migrations/` with timestamp prefixes:
+
+```
+supabase/migrations/
+├── 20240101000000_initial_schema.sql    # Base tables, RLS, triggers, storage
+└── 20240101000001_add_groups.sql        # Group-based authorization
+```
+
+### Applying Migrations
+
+```bash
+# Reset database and run all migrations (recommended for clean state)
+npm run supabase:reset
+
+# Apply only pending migrations (preserves data)
+npm run supabase:migrate
+```
+
+### Creating New Migrations
+
+```bash
+# After making changes in Supabase Studio, generate a migration:
+npm run supabase:diff
+
+# This creates a new file in supabase/migrations/
+# Review and rename appropriately, then commit
+```
+
+## Testing Workflows
+
+### End-to-End Testing with Environment Isolation
+
+```bash
+# Run full test suite against local Supabase
+npm run test:local
+
+# Run specific test file
+cp .env.local.docker .env.local && npx playwright test tests/landing-page.spec.ts
+
+# Interactive test UI
+cp .env.local.docker .env.local && npm run test:ui
+```
+
+### Database Reset Between Test Runs
+
+```bash
+# Clean slate for each test session
+npm run supabase:reset
+```
+
+### Testing Email Flows
+
+1. Trigger an email action in the app (password reset, etc.)
+2. Open Mailpit at http://127.0.0.1:54324
+3. View received emails in the inbox
+
+## Working with Supabase Studio
+
+Supabase Studio (http://127.0.0.1:54323) provides:
+
+- **Table Editor** - View and edit data directly
+- **SQL Editor** - Run queries and test migrations
+- **Authentication** - Manage users, view sessions
+- **Storage** - Browse uploaded files
+- **Logs** - View real-time logs from all services
+
+### Creating Test Users
+
+1. Open Supabase Studio → Authentication → Users
+2. Click "Add user" → "Create new user"
+3. Enter email and password
+4. User will have a profile and personal group auto-created via trigger
+
+## Troubleshooting
+
+### Port Conflicts
+
+If Supabase fails to start with port errors:
+
+```bash
+# Stop all Supabase instances
+npm run supabase:stop
+
+# Or stop all projects across machine
+npx supabase stop --all
+
+# Then restart
+npm run supabase:start
+```
+
+### Docker Issues
+
+```bash
+# Check Docker is running
+docker ps
+
+# View Supabase container logs
+docker logs supabase_db_bb-kitchen-v1 --tail 50
+
+# Restart Docker Desktop if containers are unresponsive
+```
+
+### Database Connection Issues
+
+```bash
+# Check services are running
+npm run supabase:status
+
+# Test database connection
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "SELECT 1"
+```
+
+### Reset Everything
+
+```bash
+# Nuclear option - removes all data
+npm run supabase:stop
+npx supabase stop --all
+npm run supabase:start
+npm run supabase:reset
+```
+
+### TypeScript Types Out of Sync
+
+```bash
+# Regenerate types from current local database schema
+npm run supabase:generate-types
+```
+
+## Configuration Files
+
+### supabase/config.toml
+
+Main configuration for the local Supabase instance:
+- Port mappings
+- Auth providers (Google OAuth)
+- Storage buckets
+- Database settings
+
+### supabase/seed.sql
+
+Seed data loaded after migrations during `supabase:reset`.
+
+## Production vs Local Differences
+
+| Aspect | Local | Production |
+|--------|-------|------------|
+| URL | http://127.0.0.1:54321 | https://xxx.supabase.co |
+| Auth keys | Default demo keys | Project-specific keys |
+| Email | Mailpit (local inbox) | Real email delivery |
+| Storage | Local Docker volume | Supabase cloud storage |
+| Data | Ephemeral (Docker volumes) | Persistent |
+
+## Best Practices
+
+1. **Always use `dev:local` or `test:local`** - Ensures correct environment
+2. **Reset before important test runs** - `npm run supabase:reset`
+3. **Commit migrations** - Track schema changes in git
+4. **Test migrations locally first** - Before applying to production
+5. **Use Supabase Studio** - For quick data inspection and debugging
+
+## Related Documentation
+
+- [QUICKSTART.md](./QUICKSTART.md) - Getting started guide
+- [SETUP.md](./SETUP.md) - Production Supabase setup
+- [TESTING.md](./TESTING.md) - Playwright testing guide
+- [Supabase Local Development](https://supabase.com/docs/guides/local-development) - Official docs

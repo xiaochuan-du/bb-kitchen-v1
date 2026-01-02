@@ -37,6 +37,85 @@ npx playwright show-report  # View test results
 npm run load-dishes <group_id>  # Load dishes from data/processed/*.json into database
 ```
 
+## Local Development with Supabase (Docker)
+
+The project includes a full local Supabase stack via Docker for development and testing with complete environment isolation.
+
+### Prerequisites
+
+- Docker Desktop running
+- Node.js installed
+
+### Quick Start
+
+```bash
+# 1. Start the local Supabase stack (first run downloads Docker images ~1GB)
+npm run supabase:start
+
+# 2. Run Next.js dev server with local Supabase
+npm run dev:local
+
+# 3. Access local services:
+#    - App: http://localhost:3000
+#    - Supabase Studio: http://127.0.0.1:54323
+#    - API: http://127.0.0.1:54321
+#    - Database: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+#    - Mailpit (email testing): http://127.0.0.1:54324
+```
+
+### Supabase Commands
+
+```bash
+npm run supabase:start    # Start local Supabase Docker containers
+npm run supabase:stop     # Stop containers (preserves data in Docker volumes)
+npm run supabase:status   # Check status and get connection URLs/keys
+npm run supabase:reset    # Reset database, re-run migrations, re-seed
+npm run supabase:migrate  # Run pending migrations
+npm run supabase:diff     # Generate migration from schema changes
+npm run supabase:generate-types  # Regenerate TypeScript types from local DB
+```
+
+### Local Testing with Environment Isolation
+
+```bash
+# Run Playwright tests against local Supabase
+npm run test:local
+```
+
+This copies `.env.local.docker` to `.env.local` before running tests, ensuring tests use the local Docker stack instead of production.
+
+### Environment Files
+
+- `.env.local.docker` - Local development environment (127.0.0.1 URLs, default local keys)
+- `.env.local` - Active environment file (copied from docker or production config)
+
+### Database Migrations
+
+Migrations are in `supabase/migrations/` with timestamp prefixes:
+- `20240101000000_initial_schema.sql` - All base tables, RLS, triggers, storage bucket
+- `20240101000001_add_groups.sql` - Group-based authorization
+
+To apply migrations after changes:
+```bash
+npm run supabase:reset  # Drops and recreates DB, runs all migrations + seed
+```
+
+### Troubleshooting
+
+**Port conflicts**: If Supabase fails to start due to port conflicts:
+```bash
+npm run supabase:stop    # Stop all Supabase containers
+# Or stop all projects across machine:
+npx supabase stop --all
+```
+
+**Reset everything**:
+```bash
+npm run supabase:stop
+npm run supabase:start
+npm run supabase:reset
+```
+
 ## Architecture
 
 ### Authentication Flow
@@ -185,17 +264,24 @@ Tests use Page Object Model pattern when appropriate. Dev server auto-starts bef
 
 ## Database Setup
 
-Complete SQL schema available in `migrations/` folder with numbered migration files:
-- `01_initial_schema.sql` - Base tables, RLS policies, triggers, storage
-- `02_add_recipe_to_dishes.sql` - Recipe field addition
-- `03_add_soft_delete_to_dishes.sql` - Soft delete for dishes
-- `04_add_feedback_tables.sql` - Guest feedback tables (dish_feedback, event_feedback)
-- `05_allow_hosts_view_all_dishes.sql` - Shared dish visibility across hosts
-- `06_add_groups.sql` - Group-based authorization (groups, group_members, updated RLS)
+### Local Development (Recommended)
 
-Run migrations in order in Supabase SQL Editor or use migration tools. Full setup instructions in `SETUP.md`.
+Use the local Supabase Docker stack - see "Local Development with Supabase (Docker)" section above.
 
-Key steps:
+```bash
+npm run supabase:start   # Start local stack
+npm run supabase:reset   # Apply all migrations
+```
+
+### Production/Cloud Setup
+
+Supabase migrations are in `supabase/migrations/`:
+- `20240101000000_initial_schema.sql` - All base tables, RLS policies, triggers, storage bucket
+- `20240101000001_add_groups.sql` - Group-based authorization (groups, group_members, updated RLS)
+
+Legacy migrations in `migrations/` folder are kept for reference but not used by Supabase CLI.
+
+Key setup steps:
 1. Create all tables with RLS enabled
 2. Set up trigger for profile creation on auth signup
 3. Create storage bucket `dish-images` with policies

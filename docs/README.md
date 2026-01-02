@@ -34,30 +34,34 @@ https://supabase.com/dashboard/project/cepfbggmuiarcibzyhfb/sql/862187ab-7986-4c
 ### Prerequisites
 
 - Node.js 18+ installed
-- A Supabase account ([supabase.com](https://supabase.com))
-- A Google Cloud Console project for OAuth
+- Docker Desktop (for local development)
 
-### Installation
+### Quick Start (Local Development)
 
-1. Clone the repository
-2. Install dependencies:
+The fastest way to get started is with the local Supabase Docker stack:
+
 ```bash
+# 1. Install dependencies
 npm install
+
+# 2. Start local Supabase (first run downloads ~1GB Docker images)
+npm run supabase:start
+
+# 3. Run the app with local environment
+npm run dev:local
+
+# 4. Open http://localhost:3000
 ```
 
-3. Set up your database following [SETUP.md](./SETUP.md)
+See [LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md) for full local development documentation.
 
-4. Configure environment variables:
-```bash
-cp .env.local.example .env.local
-```
+### Cloud Setup (Production)
 
-Edit `.env.local` and add your credentials (from Supabase Dashboard and Google Cloud Console)
+For cloud Supabase setup:
 
-5. Run the development server:
-```bash
-npm run dev
-```
+1. Create a Supabase account at [supabase.com](https://supabase.com)
+2. Set up a Google Cloud Console project for OAuth
+3. Follow [SETUP.md](./SETUP.md) for detailed instructions
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
@@ -94,26 +98,29 @@ See [SETUP.md](./SETUP.md) for complete schema and SQL setup.
 ## Development
 
 ```bash
-# Run development server
-npm run dev
+# Local Supabase (Docker)
+npm run supabase:start     # Start local Supabase stack
+npm run supabase:stop      # Stop containers
+npm run supabase:reset     # Reset DB and run migrations
+npm run supabase:status    # Show service URLs
 
-# Build for production
-npm run build
+# Development server
+npm run dev                # Run with production Supabase
+npm run dev:local          # Run with local Supabase (recommended)
 
-# Start production server
-npm start
+# Build
+npm run build              # Build for production
+npm start                  # Start production server
+npm run lint               # Run linter
 
-# Run linter
-npm run lint
+# Testing
+npm test                   # Run Playwright tests
+npm run test:local         # Run tests against local Supabase
+npm run test:ui            # Run tests in UI mode
 
-# Run tests
-npm test
-
-# Run tests in UI mode
-npm run test:ui
-
-# Load dishes from JSON files
-npm run load-dishes <host_id>
+# Data management
+npm run load-dishes <group_id>           # Load dishes from JSON files
+npm run supabase:generate-types          # Regenerate TypeScript types
 ```
 
 ## Deployment
@@ -135,9 +142,17 @@ After deployment, add environment variables in Vercel Dashboard and configure Su
 This project includes comprehensive end-to-end testing with Playwright:
 - **12 automated tests** covering landing page, authentication, accessibility, and responsive design
 - **CI/CD ready** with automatic test retry and HTML reports
-- **MCP integration** for automated testing in Claude Code
+- **Local environment isolation** via Docker-based Supabase
 
-For detailed testing documentation, see [TESTING.md](./TESTING.md)
+```bash
+# Run tests against local Supabase (recommended)
+npm run test:local
+
+# Run tests with UI
+npm run test:ui
+```
+
+For detailed testing documentation, see [TESTING.md](./TESTING.md) and [LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md)
 
 ## Success Criteria (MVP)
 
