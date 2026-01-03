@@ -233,3 +233,4 @@ data/raw
 data/.DS_Store
 .vercel
 .DS_Store
+.env.local.docker
