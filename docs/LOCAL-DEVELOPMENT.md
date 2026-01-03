@@ -146,6 +146,89 @@ Supabase Studio (http://127.0.0.1:54323) provides:
 3. Enter email and password
 4. User will have a profile and personal group auto-created via trigger
 
+## Loading Test Data
+
+The project includes a script to load sample dishes from JSON files. This is useful for populating the database with test data.
+
+### Prerequisites
+
+- Local Supabase running (`npm run supabase:start`)
+- Environment configured (`cp .env.local.docker .env.local`)
+- A group ID (see steps below)
+
+### Step 1: Create a Test User and Group
+
+First, create a test user which auto-creates a personal group:
+
+1. Open **Supabase Studio** at http://127.0.0.1:54323
+2. Go to **Authentication → Users → Add user → Create new user**
+3. Enter:
+   - Email: `test@example.com`
+   - Password: `testpass123`
+4. Click "Create user"
+
+The database trigger automatically creates:
+- A profile for the user
+- A personal group ("[Name]'s Kitchen")
+
+### Step 2: Get the Group ID
+
+Query the database for the group ID:
+
+```bash
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "SELECT id, name FROM groups;"
+```
+
+Or view it in Supabase Studio → Table Editor → groups.
+
+### Step 3: Run the Load Script
+
+```bash
+# Replace <group_id> with the UUID from step 2
+npm run load-dishes <group_id>
+
+# Example:
+npm run load-dishes a1b2c3d4-e5f6-7890-abcd-ef1234567890
+```
+
+The script will:
+1. Verify the group exists
+2. Show a summary of dishes to load (from `data/processed/*.json`)
+3. Wait for confirmation (press Enter)
+4. Upload images to storage and insert dishes
+
+### Alternative: Create a Test Group Directly
+
+For quick testing without a user, create an ownerless group:
+
+```bash
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "
+INSERT INTO groups (name, description, owner_id, is_personal)
+VALUES ('Test Kitchen', 'Test data group', NULL, false)
+RETURNING id;
+"
+```
+
+Use the returned UUID with `npm run load-dishes`.
+
+### Data Files
+
+Test data is loaded from:
+- `data/processed/notes_from_note.json` - Dishes from notes
+- `data/processed/image_analysis_results.json` - Dishes with images
+
+### Resetting Test Data
+
+To start fresh:
+
+```bash
+# Reset entire database (removes all data, re-runs migrations)
+npm run supabase:reset
+
+# Then reload test data
+npm run load-dishes <group_id>
+```
+
 ## Troubleshooting
 
 ### Port Conflicts
