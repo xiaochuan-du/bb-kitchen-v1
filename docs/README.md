@@ -2,23 +2,66 @@
 
 A modern web application for hosts to create curated menu experiences with safety-first ingredient transparency and democratic dessert voting.
 
-https://supabase.com/dashboard/project/cepfbggmuiarcibzyhfb/sql/862187ab-7986-4caa-91ac-68595ceb8920
+[View Project Dashboard](https://supabase.com/dashboard/project/cepfbggmuiarcibzyhfb)
 
 ## Features
 
 ### For Hosts
-- **Dish Library Management**: Create and manage dishes with images, descriptions, ingredients, and tags
-- **Smart Menu Logic**: Configure events with fixed appetizers, customizable main courses, and democratic dessert voting
-- **Guest Invitation System**: Send magic links to guests - no account required for guests
-- **Order Summary**: Real-time tracking of guest selections and auto-generated shopping lists
-- **Google OAuth**: Secure host authentication via Google
+- **Dish Library Management**: Create and manage dishes with images, descriptions, ingredients, and tags.
+- **Smart Menu Logic**: Configure events with fixed appetizers, customizable main courses, and democratic dessert voting.
+- **Guest Invitation System**: Send magic links to guests - no account required for guests.
+- **Order Summary**: Real-time tracking of guest selections and auto-generated shopping lists.
+- **Google OAuth**: Secure host authentication via Google.
 
 ### For Guests
-- **Visual Menu Gallery**: Browse dishes with high-quality images
-- **Allergy Warning System**: Clear ingredient lists displayed prominently on every dish
-- **Main Course Selection**: Choose between options or receive a fixed menu
-- **Democratic Dessert Voting**: Vote for favorite dessert (winner served to all)
-- **No Account Required**: Access via magic link using Google ID
+- **Visual Menu Gallery**: Browse dishes with high-quality images.
+- **Allergy Warning System**: Clear ingredient lists displayed prominently on every dish.
+- **Main Course Selection**: Choose between options or receive a fixed menu.
+- **Democratic Dessert Voting**: Vote for favorite dessert (winner served to all).
+- **No Account Required**: Access via magic link using Google ID.
+
+## How It Works
+
+### For the Host
+1. **Sign in** → Redirected to Host Dashboard.
+2. **Add Dishes** → Click "+ Add Dish", fill in name, category, ingredients, upload image.
+3. **Create Event** → Click "+ New Event", select dishes for each course, set menu logic.
+4. **Invite Guests** → Enter emails, copy magic links, send via email/text.
+5. **Monitor Responses** → See real-time selections and get auto-generated shopping list.
+
+### For Guests
+1. **Open Magic Link** → No sign-up needed.
+2. **View Menu** → See beautiful images and ingredient warnings.
+3. **Make Selections** → Choose main course (if applicable) and vote for dessert.
+4. **Submit** → Done! Confirmation shown.
+
+## Quick Start (Local Development)
+
+The fastest way to get started is with the local Supabase Docker stack.
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Start local Supabase** (first run downloads ~1GB Docker images):
+   ```bash
+   npm run supabase:start
+   ```
+
+3. **Run the app**:
+   ```bash
+   npm run dev:local
+   ```
+
+4. **Open** [http://localhost:3000](http://localhost:3000)
+
+## Documentation
+
+- **[LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md)**: Detailed guide for the local Supabase/Docker environment.
+- **[SETUP.md](./SETUP.md)**: Production deployment and cloud Supabase configuration.
+- **[TESTING.md](./TESTING.md)**: Guide for running and writing Playwright tests.
+- **[migrations/README.md](../migrations/README.md)**: Database schema and migration guide.
 
 ## Tech Stack
 
@@ -29,146 +72,18 @@ https://supabase.com/dashboard/project/cepfbggmuiarcibzyhfb/sql/862187ab-7986-4c
 - **Storage**: Supabase Storage for dish images
 - **Deployment**: Optimized for Vercel
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ installed
-- Docker Desktop (for local development)
-
-### Quick Start (Local Development)
-
-The fastest way to get started is with the local Supabase Docker stack:
+## Development Commands
 
 ```bash
-# 1. Install dependencies
-npm install
+# Local Supabase
+npm run supabase:start     # Start local stack
+npm run supabase:stop      # Stop (preserves data)
+npm run supabase:reset     # Wipe DB and re-seed
 
-# 2. Start local Supabase (first run downloads ~1GB Docker images)
-npm run supabase:start
-
-# 3. Run the app with local environment
-npm run dev:local
-
-# 4. Open http://localhost:3000
-```
-
-See [LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md) for full local development documentation.
-
-### Cloud Setup (Production)
-
-For cloud Supabase setup:
-
-1. Create a Supabase account at [supabase.com](https://supabase.com)
-2. Set up a Google Cloud Console project for OAuth
-3. Follow [SETUP.md](./SETUP.md) for detailed instructions
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Project Structure
-
-```
-bb-kitchen-v1/
-├── app/                      # Next.js app directory
-│   ├── api/auth/callback/    # OAuth callback
-│   ├── guest/[eventId]/      # Guest RSVP pages
-│   ├── host/                 # Host dashboard
-│   └── page.tsx              # Landing page
-├── components/               # React components
-│   ├── guest/                # Guest-facing components
-│   └── host/                 # Host dashboard components
-├── lib/supabase/             # Supabase client configurations
-├── types/database.ts         # Database schema types
-├── proxy.ts                  # Authentication middleware
-└── SETUP.md                  # Detailed setup instructions
-```
-
-## Database Schema
-
-The application uses 6 main tables:
-- `profiles` - User profiles (synced with auth.users)
-- `dishes` - Dish library with ingredients
-- `events` - Event configurations
-- `guests` - Guest invitations with magic tokens
-- `selections` - Main course selections
-- `dessert_votes` - Dessert voting results
-
-See [SETUP.md](./SETUP.md) for complete schema and SQL setup.
-
-## Development
-
-```bash
-# Local Supabase (Docker)
-npm run supabase:start     # Start local Supabase stack
-npm run supabase:stop      # Stop containers
-npm run supabase:reset     # Reset DB and run migrations
-npm run supabase:status    # Show service URLs
-
-# Development server
-npm run dev                # Run with production Supabase
-npm run dev:local          # Run with local Supabase (recommended)
-
-# Build
-npm run build              # Build for production
-npm start                  # Start production server
-npm run lint               # Run linter
-
-# Testing
-npm test                   # Run Playwright tests
+# App
+npm run dev:local          # Run app with local Supabase
 npm run test:local         # Run tests against local Supabase
-npm run test:ui            # Run tests in UI mode
-
-# Data management
-npm run load-dishes <group_id>           # Load dishes from JSON files
-npm run supabase:generate-types          # Regenerate TypeScript types
 ```
-
-## Deployment
-
-Deploy to Vercel with these commands:
-
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-# Deploy to production
-vercel --prod
-```
-
-After deployment, add environment variables in Vercel Dashboard and configure Supabase redirect URLs. See [SETUP.md](./SETUP.md#5-deploy-to-production-vercel) for detailed instructions.
-
-## Testing
-
-This project includes comprehensive end-to-end testing with Playwright:
-- **12 automated tests** covering landing page, authentication, accessibility, and responsive design
-- **CI/CD ready** with automatic test retry and HTML reports
-- **Local environment isolation** via Docker-based Supabase
-
-```bash
-# Run tests against local Supabase (recommended)
-npm run test:local
-
-# Run tests with UI
-npm run test:ui
-```
-
-For detailed testing documentation, see [TESTING.md](./TESTING.md) and [LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md)
-
-## Success Criteria (MVP)
-
-✅ Host can set up an event in under 5 minutes
-✅ Guests can complete food selection without asking clarifying questions
-✅ Host has a clear shopping list 48 hours before the event
-✅ All ingredients clearly displayed for allergy safety
-✅ Democratic dessert voting with clear expectations
-
-## Security Features
-
-- Row Level Security (RLS) enabled on all tables
-- Magic token authentication for guests
-- Google OAuth for host authentication
-- Image upload validation and storage policies
-- Server-side session management
 
 ## License
 

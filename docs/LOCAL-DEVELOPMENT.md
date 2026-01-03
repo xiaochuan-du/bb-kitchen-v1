@@ -319,7 +319,6 @@ Seed data loaded after migrations during `supabase:reset`.
 
 ## Related Documentation
 
-- [QUICKSTART.md](./QUICKSTART.md) - Getting started guide
 - [SETUP.md](./SETUP.md) - Production Supabase setup
 - [TESTING.md](./TESTING.md) - Playwright testing guide
 - [Supabase Local Development](https://supabase.com/docs/guides/local-development) - Official docs
