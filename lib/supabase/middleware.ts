@@ -55,7 +55,12 @@ export async function updateSession(request: NextRequest) {
   // Check if authenticated user is allowed to access host routes
   if (user && isHostRoute) {
     const userEmail = user.email?.toLowerCase()
-    if (!userEmail || !ALLOWED_HOST_EMAILS.includes(userEmail)) {
+    // Allow all hosts in development mode with ALLOW_ALL_HOSTS=true (for E2E testing)
+    const allowAllHosts =
+      process.env.NODE_ENV === 'development' &&
+      process.env.ALLOW_ALL_HOSTS === 'true'
+
+    if (!allowAllHosts && (!userEmail || !ALLOWED_HOST_EMAILS.includes(userEmail))) {
       // Sign out the unauthorized user and redirect to home
       await supabase.auth.signOut()
       const url = request.nextUrl.clone()

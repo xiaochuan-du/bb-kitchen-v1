@@ -116,6 +116,57 @@ cp .env.local.docker .env.local && npx playwright test tests/landing-page.spec.t
 cp .env.local.docker .env.local && npm run test:ui
 ```
 
+### Core Workflow E2E Test
+
+The `tests/e2e/group-workflow.spec.ts` test validates the most critical user flows:
+
+| Test | Description |
+|------|-------------|
+| User A sees dishes | Group owner can view dishes in shared group |
+| User B sees dishes | Group member can view dishes in shared group |
+| User C cannot see dishes | Non-member is blocked by RLS policies |
+| Dish image visible | Dish images load correctly on the guest menu |
+| Guest RSVP flow | Guest accesses invite link, selects main course & dessert vote |
+| Guest selections recorded | Database correctly stores guest choices |
+| Guest feedback flow | Guest accesses feedback link, rates dishes, submits comments |
+| Guest feedback recorded | Database correctly stores ratings and comments |
+
+#### Running the E2E Test
+
+```bash
+# Ensure local Supabase is running
+npm run supabase:start
+
+# Run the E2E test
+cp .env.local.docker .env.local && npx playwright test tests/e2e/group-workflow.spec.ts
+```
+
+#### Interactive Test Modes
+
+```bash
+# UI Mode - Visual test runner with time-travel debugging (recommended)
+npx playwright test tests/e2e/group-workflow.spec.ts --ui
+
+# Headed Mode - Watch tests run in a visible browser
+npx playwright test tests/e2e/group-workflow.spec.ts --headed
+
+# Debug Mode - Step through tests with Playwright Inspector
+npx playwright test tests/e2e/group-workflow.spec.ts --debug
+
+# Run a single test by name
+npx playwright test tests/e2e/group-workflow.spec.ts --ui --grep "Guest can access invite"
+```
+
+#### Test Architecture
+
+The E2E test uses these fixtures in `tests/fixtures/`:
+
+- **`supabase-admin.ts`** - Admin client for user/group creation (bypasses RLS)
+- **`test-data.ts`** - Generates test dishes, events, and guests
+- **`auth-helpers.ts`** - Authenticates test users via `/api/auth/test-login`
+
+The test creates 3 users (A, B, C), a shared group, dishes, an event, and a guest - all programmatically. After tests complete, cleanup removes all test data.
+
 ### Database Reset Between Test Runs
 
 ```bash

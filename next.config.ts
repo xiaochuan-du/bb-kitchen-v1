@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         port: '54321',
         pathname: '/storage/**',
       },
+      {
+        // For E2E testing with placeholder images
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
   },
 };
