@@ -16,6 +16,21 @@ TableMate is a Next.js 16 application for creating curated menu experiences with
 - **Post-Event Feedback**: Survey system for guests to rate dishes (thumbs up/down) with comments
 - **Feedback Dashboard**: Table view showing dish ratings across all guests with comment previews
 
+## Just Commands (Recommended)
+
+This project uses `just` to simplify common workflows.
+
+```bash
+just dev            # Start local Supabase and Next.js dev server
+just up             # Start local Supabase services
+just down           # Stop local Supabase services
+just reset          # Reset local database (wipes data, re-runs migrations/seeds)
+just test-e2e       # Run core E2E workflow test (Critical for verification)
+just load-dishes <id> # Load sample data into a group
+```
+
+> **Note:** Once the local Supabase service is up (`just up`), use **`just test-e2e`** to verify the main functions of the application (User A/B/C flows, dish visibility, guest RSVP, feedback).
+
 ## Development Commands
 
 ```bash
