@@ -75,6 +75,20 @@ npm run supabase:diff     # Generate migration from schema changes
 npm run supabase:generate-types  # Regenerate TypeScript types from local DB
 ```
 
+### Setting up Test Data
+
+1. **Create Test User**:
+   - Open Supabase Studio: http://127.0.0.1:54323
+   - Go to **Authentication > Users > Add user**
+   - Create a user (e.g., `test@example.com`). This automatically creates a personal group via database triggers.
+
+2. **Load Sample Dishes**:
+   - Get the Group ID from **Table Editor > groups** in Supabase Studio.
+   - Run the load script:
+     ```bash
+     npm run load-dishes <group_id>
+     ```
+
 ### Local Testing with Environment Isolation
 
 ```bash

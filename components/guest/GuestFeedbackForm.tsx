@@ -110,6 +110,7 @@ export default function GuestFeedbackForm({
               src={dish.image_url}
               alt={dish.name}
               fill
+              unoptimized={dish.image_url.includes('127.0.0.1')}
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
