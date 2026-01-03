@@ -61,7 +61,7 @@ The fastest way to get started is with the local Supabase Docker stack.
 - **[LOCAL-DEVELOPMENT.md](./LOCAL-DEVELOPMENT.md)**: Detailed guide for the local Supabase/Docker environment.
 - **[SETUP.md](./SETUP.md)**: Production deployment and cloud Supabase configuration.
 - **[TESTING.md](./TESTING.md)**: Guide for running and writing Playwright tests.
-- **[migrations/README.md](../migrations/README.md)**: Database schema and migration guide.
+- `supabase/migrations` migration scripts
 
 ## Tech Stack
 

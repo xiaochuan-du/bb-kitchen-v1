@@ -72,6 +72,19 @@ export default async function GuestEventPage({
     .select<'*', Dish>('*')
     .in('id', allDishIds)
 
+  const signedDishes = await Promise.all((dishes || []).map(async (dish) => {
+    if (dish.image_url && !dish.image_url.startsWith('http')) {
+      const { data } = await supabase.storage
+        .from('dish-images')
+        .createSignedUrl(dish.image_url, 3600)
+      
+      if (data) {
+        return { ...dish, image_url: data.signedUrl }
+      }
+    }
+    return dish
+  }))
+
   const { data: existingSelection } = await supabase
     .from('selections')
     .select<'*', Selection>('*')
@@ -89,7 +102,7 @@ export default async function GuestEventPage({
   return (
     <GuestMenuGallery
       event={event}
-      dishes={dishes || []}
+      dishes={signedDishes}
       guest={guest}
       existingSelection={existingSelection}
       existingVote={existingVote}

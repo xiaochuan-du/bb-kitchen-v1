@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
 import Image from 'next/image'
@@ -18,6 +18,35 @@ export default function DishCard({
 }) {
   const [showIngredients, setShowIngredients] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [signedUrl, setSignedUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    const getSignedUrl = async () => {
+      if (!dish.image_url) {
+        setSignedUrl(null)
+        return
+      }
+
+      // Check if it's a full URL (legacy) or just a path
+      if (dish.image_url.startsWith('http')) {
+        setSignedUrl(dish.image_url)
+        return
+      }
+
+      const supabase = createClient()
+      const { data, error } = await supabase.storage
+        .from('dish-images')
+        .createSignedUrl(dish.image_url, 3600) // 1 hour expiry
+
+      if (data) {
+        setSignedUrl(data.signedUrl)
+      } else {
+        console.error('Error getting signed URL:', error)
+      }
+    }
+
+    getSignedUrl()
+  }, [dish.image_url])
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this dish?')) return
@@ -45,13 +74,13 @@ export default function DishCard({
 
   return (
     <div className="group bg-secondary border border-subtle rounded-sm overflow-hidden hover:shadow-[0_12px_30px_var(--shadow-soft)] transition-all duration-500">
-      {dish.image_url && (
+      {signedUrl && (
         <div className="relative h-56 w-full bg-accent overflow-hidden">
           <Image
-            src={dish.image_url}
+            src={signedUrl}
             alt={dish.name}
             fill
-            unoptimized={dish.image_url.includes('127.0.0.1')}
+            unoptimized={signedUrl.includes('127.0.0.1')}
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

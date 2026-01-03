@@ -63,10 +63,8 @@ export default function DishForm({
       if (uploadError) {
         console.error('Error uploading image:', uploadError)
       } else {
-        const { data: { publicUrl } } = supabase.storage
-          .from('dish-images')
-          .getPublicUrl(fileName)
-        imageUrl = publicUrl
+        // Store the path, not the public URL, as the bucket is private
+        imageUrl = fileName
       }
     }
 
