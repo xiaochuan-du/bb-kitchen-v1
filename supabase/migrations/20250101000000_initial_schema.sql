@@ -61,6 +61,8 @@ CREATE TABLE events (
 
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Guests table
 CREATE TABLE guests (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
