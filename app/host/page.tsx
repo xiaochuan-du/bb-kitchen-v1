@@ -1,40 +1,42 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import DishLibrary from '@/components/host/DishLibrary'
-import EventsList from '@/components/host/EventsList'
-import HostNav from '@/components/host/HostNav'
-import { getUserGroups, getActiveGroup } from '@/lib/supabase/groups'
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import DishLibrary from '@/components/host/DishLibrary';
+import EventsList from '@/components/host/EventsList';
+import HostNav from '@/components/host/HostNav';
+import { getUserGroups, getActiveGroup } from '@/lib/supabase/groups';
 
 export default async function HostDashboard({
   searchParams,
 }: {
-  searchParams: Promise<{ group?: string }>
+  searchParams: Promise<{ group?: string }>;
 }) {
-  const { group: groupParam } = await searchParams
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { group: groupParam } = await searchParams;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/')
+    redirect('/');
   }
 
   // Get user's groups and active group
-  let groups: Awaited<ReturnType<typeof getUserGroups>> = []
-  let activeGroup: Awaited<ReturnType<typeof getActiveGroup>> = null
-  let migrationNeeded = false
+  let groups: Awaited<ReturnType<typeof getUserGroups>> = [];
+  let activeGroup: Awaited<ReturnType<typeof getActiveGroup>> = null;
+  let migrationNeeded = false;
 
   try {
-    groups = await getUserGroups()
-    activeGroup = await getActiveGroup(groupParam)
+    groups = await getUserGroups();
+    activeGroup = await getActiveGroup(groupParam);
   } catch (error) {
     // Groups table may not exist yet - migration needed
-    console.error('Error fetching groups:', error)
-    migrationNeeded = true
+    console.error('Error fetching groups:', error);
+    migrationNeeded = true;
   }
 
   if (!activeGroup && !migrationNeeded) {
     // Groups table exists but user has no groups - this shouldn't happen
-    migrationNeeded = true
+    migrationNeeded = true;
   }
 
   // If migration is needed, show a message
@@ -46,15 +48,19 @@ export default async function HostDashboard({
             Database Migration Required
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            The group-based authorization migration needs to be applied.
-            Please run migration <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">06_add_groups.sql</code> in your Supabase SQL Editor.
+            The group-based authorization migration needs to be applied. Please
+            run{' '}
+            <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+              npx supabase db reset
+            </code>{' '}
+            to apply all migrations.
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-500">
             After running the migration, refresh this page.
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   // Fetch dishes for the active group
@@ -63,14 +69,14 @@ export default async function HostDashboard({
     .select('*')
     .eq('group_id', activeGroup.id)
     .is('deleted_at', null)
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: false });
 
   // Fetch events for the active group
   const { data: events } = await supabase
     .from('events')
     .select('*')
     .eq('group_id', activeGroup.id)
-    .order('event_date', { ascending: false })
+    .order('event_date', { ascending: false });
 
   return (
     <div className="min-h-screen bg-primary">
@@ -94,7 +100,10 @@ export default async function HostDashboard({
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           <div className="lg:col-span-2 animate-fade-in-up stagger-1">
-            <DishLibrary initialDishes={dishes || []} groupId={activeGroup.id} />
+            <DishLibrary
+              initialDishes={dishes || []}
+              groupId={activeGroup.id}
+            />
           </div>
           <div className="animate-fade-in-up stagger-2">
             <EventsList initialEvents={events || []} groupId={activeGroup.id} />
@@ -102,5 +111,5 @@ export default async function HostDashboard({
         </div>
       </main>
     </div>
-  )
+  );
 }
