@@ -13,129 +13,137 @@
  *   - Group must exist in database
  */
 
-import { config } from 'dotenv'
-import { createClient } from '@supabase/supabase-js'
-import { readFileSync, existsSync } from 'fs'
-import { join, extname, basename } from 'path'
-import type { Database } from '../types/database'
+import { config } from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
+import { readFileSync, existsSync } from 'fs';
+import { join, extname, basename } from 'path';
+import type { Database } from '../types/database';
 
 // Load environment variables from .env.local
-config({ path: join(process.cwd(), '.env.local') })
+config({ path: join(process.cwd(), '.env.local') });
 
-type DishInsert = Database['public']['Tables']['dishes']['Insert']
+type DishInsert = Database['public']['Tables']['dishes']['Insert'];
 
 interface RawDish {
-  name: string
-  ingredients: string[]
-  process?: string[]
-  notes?: string
-  category?: string
-  tags?: string[]
-  image?: string
+  name: string;
+  ingredients: string[];
+  process?: string[];
+  notes?: string;
+  category?: string;
+  tags?: string[];
+  image?: string;
 }
 
 // Load environment variables
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-  console.error('Error: Missing environment variables')
-  console.error('Please ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in .env.local')
-  process.exit(1)
+  console.error('Error: Missing environment variables');
+  console.error(
+    'Please ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in .env.local'
+  );
+  process.exit(1);
 }
 
 // Get group ID from command line
-const groupId = process.argv[2]
+const groupId = process.argv[2];
 if (!groupId) {
-  console.error('Error: Missing group_id parameter')
-  console.error('Usage: npx tsx scripts/load-dishes.ts <group_id>')
-  process.exit(1)
+  console.error('Error: Missing group_id parameter');
+  console.error('Usage: npx tsx scripts/load-dishes.ts <group_id>');
+  process.exit(1);
 }
 
 // Validate UUID format
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const uuidRegex =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 if (!uuidRegex.test(groupId)) {
-  console.error('Error: Invalid group_id format. Must be a valid UUID.')
-  process.exit(1)
+  console.error('Error: Invalid group_id format. Must be a valid UUID.');
+  process.exit(1);
 }
 
-const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 /**
  * Normalize category to valid database enum value
  */
-function normalizeCategory(category?: string): 'appetizer' | 'main' | 'dessert' {
-  if (!category) return 'main'
+function normalizeCategory(
+  category?: string
+): 'appetizer' | 'main' | 'dessert' {
+  if (!category) return 'main';
 
-  const normalized = category.toLowerCase().trim()
+  const normalized = category.toLowerCase().trim();
 
-  if (normalized === 'appetizer' || normalized === 'starter') return 'appetizer'
-  if (normalized === 'dessert' || normalized === 'sweet') return 'dessert'
-  return 'main'
+  if (normalized === 'appetizer' || normalized === 'starter')
+    return 'appetizer';
+  if (normalized === 'dessert' || normalized === 'sweet') return 'dessert';
+  return 'main';
 }
 
 /**
  * Convert process array to recipe string
  */
 function processToRecipe(process?: string[], notes?: string): string | null {
-  if (!process || process.length === 0) return notes || null
+  if (!process || process.length === 0) return notes || null;
 
   const recipeText = process
     .map((step, index) => `${index + 1}. ${step}`)
-    .join('\n\n')
+    .join('\n\n');
 
   if (notes) {
-    return `${recipeText}\n\n备注：${notes}`
+    return `${recipeText}\n\n备注：${notes}`;
   }
 
-  return recipeText
+  return recipeText;
 }
 
 /**
  * Check if image is a remote URL
  */
 function isRemoteUrl(image?: string): boolean {
-  if (!image) return false
-  return image.startsWith('http://') || image.startsWith('https://')
+  if (!image) return false;
+  return image.startsWith('http://') || image.startsWith('https://');
 }
 
 /**
  * Download image from remote URL
  */
 async function downloadImage(url: string): Promise<Buffer> {
-  const response = await fetch(url)
+  const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to download image: ${response.statusText}`)
+    throw new Error(`Failed to download image: ${response.statusText}`);
   }
-  const arrayBuffer = await response.arrayBuffer()
-  return Buffer.from(arrayBuffer)
+  const arrayBuffer = await response.arrayBuffer();
+  return Buffer.from(arrayBuffer);
 }
 
 /**
  * Get image buffer from local file or remote URL
  */
-async function getImageBuffer(imagePath: string): Promise<{ buffer: Buffer; filename: string }> {
+async function getImageBuffer(
+  imagePath: string
+): Promise<{ buffer: Buffer; filename: string }> {
   if (isRemoteUrl(imagePath)) {
     // Download from remote URL
-    const buffer = await downloadImage(imagePath)
+    const buffer = await downloadImage(imagePath);
     // Extract filename from URL or generate one
-    const urlPath = new URL(imagePath).pathname
-    const filename = basename(urlPath) || `image-${Date.now()}.jpg`
-    return { buffer, filename }
+    const urlPath = new URL(imagePath).pathname;
+    const filename = basename(urlPath) || `image-${Date.now()}.jpg`;
+    return { buffer, filename };
   } else {
     // Read from local file
-    const fullPath = join(process.cwd(), imagePath)
+    const fullPath = join(process.cwd(), imagePath);
     if (!existsSync(fullPath)) {
-      throw new Error(`Local file not found: ${fullPath}`)
+      throw new Error(`Local file not found: ${fullPath}`);
     }
-    const buffer = readFileSync(fullPath)
-    const filename = basename(imagePath)
-    return { buffer, filename }
+    const buffer = readFileSync(fullPath);
+    const filename = basename(imagePath);
+    return { buffer, filename };
   }
 }
 
 /**
- * Upload image to Supabase Storage and return public URL
+ * Upload image to Supabase Storage and return signed URL
  */
 async function uploadImageToStorage(
   imagePath: string,
@@ -143,13 +151,15 @@ async function uploadImageToStorage(
   dishName: string
 ): Promise<string | null> {
   try {
-    const { buffer, filename } = await getImageBuffer(imagePath)
+    const { buffer, filename } = await getImageBuffer(imagePath);
 
     // Generate unique filename
-    const ext = extname(filename) || '.jpg'
-    const sanitizedDishName = dishName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()
-    const timestamp = Date.now()
-    const storagePath = `${groupId}/${sanitizedDishName}_${timestamp}${ext}`
+    const ext = extname(filename) || '.jpg';
+    const sanitizedDishName = dishName
+      .replace(/[^a-zA-Z0-9]/g, '_')
+      .toLowerCase();
+    const timestamp = Date.now();
+    const storagePath = `${groupId}/${sanitizedDishName}_${timestamp}${ext}`;
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
@@ -157,22 +167,18 @@ async function uploadImageToStorage(
       .upload(storagePath, buffer, {
         contentType: getContentType(ext),
         upsert: false,
-      })
+      });
 
     if (uploadError) {
-      console.error(`   ⚠️  Image upload failed: ${uploadError.message}`)
-      return null
+      console.error(`   ⚠️  Image upload failed: ${uploadError.message}`);
+      return null;
     }
 
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('dish-images')
-      .getPublicUrl(storagePath)
-
-    return publicUrl
+    // Return storage path (signed URLs are generated on-demand when displaying)
+    return storagePath;
   } catch (error) {
-    console.error(`   ⚠️  Image processing failed:`, error)
-    return null
+    console.error(`   ⚠️  Image processing failed:`, error);
+    return null;
   }
 }
 
@@ -186,21 +192,24 @@ function getContentType(ext: string): string {
     '.png': 'image/png',
     '.gif': 'image/gif',
     '.webp': 'image/webp',
-  }
-  return types[ext.toLowerCase()] || 'image/jpeg'
+  };
+  return types[ext.toLowerCase()] || 'image/jpeg';
 }
 
 /**
  * Transform raw dish data to database insert format
  */
-async function transformDish(raw: RawDish, groupId: string): Promise<DishInsert> {
+async function transformDish(
+  raw: RawDish,
+  groupId: string
+): Promise<DishInsert> {
   // Handle image upload if present
-  let imageUrl: string | null = null
+  let imageUrl: string | null = null;
   if (raw.image) {
-    console.log(`   📸 Processing image for "${raw.name}"...`)
-    imageUrl = await uploadImageToStorage(raw.image, groupId, raw.name)
+    console.log(`   📸 Processing image for "${raw.name}"...`);
+    imageUrl = await uploadImageToStorage(raw.image, groupId, raw.name);
     if (imageUrl) {
-      console.log(`   ✅ Image uploaded successfully`)
+      console.log(`   ✅ Image uploaded successfully`);
     }
   }
 
@@ -213,7 +222,7 @@ async function transformDish(raw: RawDish, groupId: string): Promise<DishInsert>
     tags: raw.tags || [],
     category: normalizeCategory(raw.category),
     image_url: imageUrl,
-  }
+  };
 }
 
 /**
@@ -221,11 +230,11 @@ async function transformDish(raw: RawDish, groupId: string): Promise<DishInsert>
  */
 function loadDishesFromFile(filePath: string): RawDish[] {
   try {
-    const content = readFileSync(filePath, 'utf-8')
-    return JSON.parse(content) as RawDish[]
+    const content = readFileSync(filePath, 'utf-8');
+    return JSON.parse(content) as RawDish[];
   } catch (error) {
-    console.error(`Error reading file ${filePath}:`, error)
-    return []
+    console.error(`Error reading file ${filePath}:`, error);
+    return [];
   }
 }
 
@@ -233,73 +242,85 @@ function loadDishesFromFile(filePath: string): RawDish[] {
  * Main execution
  */
 async function main() {
-  console.log('🍳 TableMate Dish Loader')
-  console.log('========================\n')
+  console.log('🍳 TableMate Dish Loader');
+  console.log('========================\n');
 
   // Verify group exists
-  console.log(`Verifying group: ${groupId}`)
+  console.log(`Verifying group: ${groupId}`);
   const { data: group, error: groupError } = await supabase
     .from('groups')
     .select('id, name, description')
     .eq('id', groupId)
-    .single()
+    .single();
 
   if (groupError || !group) {
-    console.error(`❌ Error: Group with ID ${groupId} not found in database`)
-    console.error('Please create the group first or use a valid group_id')
-    process.exit(1)
+    console.error(`❌ Error: Group with ID ${groupId} not found in database`);
+    console.error('Please create the group first or use a valid group_id');
+    process.exit(1);
   }
 
-  const groupName = (group as any).name || 'Unknown'
-  console.log(`✅ Group found: ${groupName}\n`)
+  const groupName = (group as any).name || 'Unknown';
+  console.log(`✅ Group found: ${groupName}\n`);
 
   // Load dishes from both files
-  const dataDir = join(process.cwd(), 'data', 'processed')
-  const notesFile = join(dataDir, 'notes_from_note.json')
-  const imageAnalysisFile = join(dataDir, 'image_analysis_results.json')
+  const dataDir = join(process.cwd(), 'data', 'processed');
+  const notesFile = join(dataDir, 'notes_from_note.json');
+  const imageAnalysisFile = join(dataDir, 'image_analysis_results.json');
 
-  console.log('Loading dish data...')
-  const dishesFromNotes = loadDishesFromFile(notesFile)
-  const dishesFromImages = loadDishesFromFile(imageAnalysisFile)
+  console.log('Loading dish data...');
+  const dishesFromNotes = loadDishesFromFile(notesFile);
+  const dishesFromImages = loadDishesFromFile(imageAnalysisFile);
 
-  console.log(`  📄 notes_from_note.json: ${dishesFromNotes.length} dishes`)
-  console.log(`  📄 image_analysis_results.json: ${dishesFromImages.length} dishes`)
+  console.log(`  📄 notes_from_note.json: ${dishesFromNotes.length} dishes`);
+  console.log(
+    `  📄 image_analysis_results.json: ${dishesFromImages.length} dishes`
+  );
 
   // Combine dishes
-  const allRawDishes = [...dishesFromNotes, ...dishesFromImages]
+  const allRawDishes = [...dishesFromNotes, ...dishesFromImages];
 
-  console.log(`\n📊 Total dishes to process: ${allRawDishes.length}`)
-  console.log(`   Appetizers: ${allRawDishes.filter(d => normalizeCategory(d.category) === 'appetizer').length}`)
-  console.log(`   Mains: ${allRawDishes.filter(d => normalizeCategory(d.category) === 'main').length}`)
-  console.log(`   Desserts: ${allRawDishes.filter(d => normalizeCategory(d.category) === 'dessert').length}`)
-  console.log(`   With images: ${allRawDishes.filter(d => d.image).length}`)
+  console.log(`\n📊 Total dishes to process: ${allRawDishes.length}`);
+  console.log(
+    `   Appetizers: ${allRawDishes.filter((d) => normalizeCategory(d.category) === 'appetizer').length}`
+  );
+  console.log(
+    `   Mains: ${allRawDishes.filter((d) => normalizeCategory(d.category) === 'main').length}`
+  );
+  console.log(
+    `   Desserts: ${allRawDishes.filter((d) => normalizeCategory(d.category) === 'dessert').length}`
+  );
+  console.log(`   With images: ${allRawDishes.filter((d) => d.image).length}`);
 
   // Ask for confirmation
-  console.log('\n⚠️  This will upload images and insert all dishes into the database.')
-  console.log('   Press Ctrl+C to cancel, or press Enter to continue...')
+  console.log(
+    '\n⚠️  This will upload images and insert all dishes into the database.'
+  );
+  console.log('   Press Ctrl+C to cancel, or press Enter to continue...');
 
   // Wait for user input (simple version for Node.js)
   await new Promise<void>((resolve) => {
-    process.stdin.once('data', () => resolve())
-  })
+    process.stdin.once('data', () => resolve());
+  });
 
   // Transform and insert dishes one by one (to handle image uploads)
-  console.log('\n🔄 Processing dishes...\n')
+  console.log('\n🔄 Processing dishes...\n');
 
-  let successCount = 0
-  let errorCount = 0
-  let imagesUploaded = 0
+  let successCount = 0;
+  let errorCount = 0;
+  let imagesUploaded = 0;
 
   for (let i = 0; i < allRawDishes.length; i++) {
-    const rawDish = allRawDishes[i]
-    console.log(`[${i + 1}/${allRawDishes.length}] Processing: ${rawDish.name}`)
+    const rawDish = allRawDishes[i];
+    console.log(
+      `[${i + 1}/${allRawDishes.length}] Processing: ${rawDish.name}`
+    );
 
     try {
       // Transform dish (includes image upload)
-      const transformedDish = await transformDish(rawDish, groupId)
+      const transformedDish = await transformDish(rawDish, groupId);
 
       if (transformedDish.image_url) {
-        imagesUploaded++
+        imagesUploaded++;
       }
 
       // Insert into database
@@ -307,33 +328,35 @@ async function main() {
         .from('dishes')
         .insert(transformedDish as any)
         .select()
-        .single()
+        .single();
 
       if (error) {
-        console.error(`   ❌ Database error: ${error.message}\n`)
-        errorCount++
+        console.error(`   ❌ Database error: ${error.message}\n`);
+        errorCount++;
       } else {
-        console.log(`   ✅ Inserted successfully (${transformedDish.category})\n`)
-        successCount++
+        console.log(
+          `   ✅ Inserted successfully (${transformedDish.category})\n`
+        );
+        successCount++;
       }
     } catch (error) {
-      console.error(`   ❌ Error processing dish:`, error)
-      console.log('')
-      errorCount++
+      console.error(`   ❌ Error processing dish:`, error);
+      console.log('');
+      errorCount++;
     }
   }
 
-  console.log(`\n📊 Final Summary:`)
-  console.log(`   ✅ Success: ${successCount}`)
-  console.log(`   ❌ Failed: ${errorCount}`)
-  console.log(`   📝 Total: ${allRawDishes.length}`)
-  console.log(`   📸 Images uploaded: ${imagesUploaded}`)
+  console.log(`\n📊 Final Summary:`);
+  console.log(`   ✅ Success: ${successCount}`);
+  console.log(`   ❌ Failed: ${errorCount}`);
+  console.log(`   📝 Total: ${allRawDishes.length}`);
+  console.log(`   📸 Images uploaded: ${imagesUploaded}`);
 
-  console.log('\n✨ Done!')
-  process.exit(0)
+  console.log('\n✨ Done!');
+  process.exit(0);
 }
 
 main().catch((error) => {
-  console.error('Fatal error:', error)
-  process.exit(1)
-})
+  console.error('Fatal error:', error);
+  process.exit(1);
+});
