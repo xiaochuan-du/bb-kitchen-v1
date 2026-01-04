@@ -81,9 +81,33 @@ export default function DishLibrary({ initialDishes, groupId }: DishLibraryProps
         <button
           onClick={() => setShowForm(!showForm)}
           disabled={editingDish !== null}
-          className="font-sans px-6 py-3 bg-[#C17254] text-white rounded-sm hover:bg-[#8B7355] transition-all duration-300 font-medium text-sm tracking-wide shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="
+            flex items-center gap-2
+            font-sans px-5 py-2.5
+            bg-[var(--accent-warm)] text-white rounded-lg
+            hover:bg-[var(--accent-earth)]
+            transition-all duration-200
+            font-medium text-sm
+            shadow-sm hover:shadow-md
+            disabled:opacity-50 disabled:cursor-not-allowed
+            cursor-pointer
+          "
         >
-          {showForm ? '✕ Cancel' : '+ Add Dish'}
+          {showForm ? (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Cancel
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Dish
+            </>
+          )}
         </button>
       </div>
 
@@ -93,16 +117,19 @@ export default function DishLibrary({ initialDishes, groupId }: DishLibraryProps
         </div>
       )}
 
-      <div className="flex flex-wrap gap-3 mb-8">
+      <div className="flex flex-wrap gap-2 mb-8">
         {['all', 'appetizer', 'main', 'dessert'].map((cat) => (
           <button
             key={cat}
             onClick={() => setFilter(cat as typeof filter)}
-            className={`font-sans px-5 py-2.5 rounded-sm text-sm font-medium transition-all duration-300 ${
-              filter === cat
-                ? 'bg-[#3D5540] text-white shadow-lg'
-                : 'bg-secondary border border-subtle text-secondary hover:border-[#3D5540] hover:text-[#3D5540] hover:shadow-md'
-            }`}
+            className={`
+              font-sans px-4 py-2 rounded-lg text-sm font-medium
+              transition-all duration-200 cursor-pointer
+              ${filter === cat
+                ? 'bg-[var(--accent-forest)] text-white shadow-sm'
+                : 'bg-secondary border border-subtle text-secondary hover:border-[var(--accent-forest)]/40 hover:text-[var(--accent-forest)]'
+              }
+            `}
           >
             {cat === 'all' ? 'All Dishes' : cat.charAt(0).toUpperCase() + cat.slice(1)}
           </button>
@@ -139,7 +166,14 @@ export default function DishLibrary({ initialDishes, groupId }: DishLibraryProps
         <div className="mt-8 text-center">
           <button
             onClick={handleLoadMore}
-            className="font-sans px-8 py-3 bg-secondary border border-subtle text-secondary rounded-sm hover:border-[#3D5540] hover:text-[#3D5540] transition-all duration-300 font-medium text-sm tracking-wide hover:shadow-md"
+            className="
+              font-sans px-6 py-2.5
+              bg-secondary border border-subtle text-secondary rounded-lg
+              hover:border-[var(--accent-forest)]/40 hover:text-[var(--accent-forest)]
+              transition-all duration-200
+              font-medium text-sm
+              cursor-pointer
+            "
           >
             Load More ({filteredDishes.length - visibleCount} remaining)
           </button>
@@ -147,13 +181,15 @@ export default function DishLibrary({ initialDishes, groupId }: DishLibraryProps
       )}
 
       {filteredDishes.length === 0 && (
-        <div className="relative text-center py-20 bg-secondary border-2 border-dashed border-subtle rounded-lg overflow-hidden group hover:border-[#9DAA97] transition-all duration-500">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9DAA97]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div className="relative text-center py-16 bg-secondary border-2 border-dashed border-subtle rounded-xl overflow-hidden group hover:border-[var(--accent-sage)] transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-sage)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative max-w-sm mx-auto">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#C17254]/10 to-[#9DAA97]/10 flex items-center justify-center">
-              <div className="text-4xl">🍽️</div>
+            <div className="w-16 h-16 mx-auto mb-6 rounded-xl bg-[var(--accent-earth)]/10 flex items-center justify-center">
+              <svg className="w-8 h-8 text-[var(--accent-earth)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
             </div>
-            <p className="font-serif text-xl text-primary mb-2">
+            <p className="font-display text-xl text-primary mb-2">
               {filter === 'all'
                 ? 'Your culinary canvas awaits'
                 : `No ${filter} dishes yet`
@@ -172,18 +208,19 @@ export default function DishLibrary({ initialDishes, groupId }: DishLibraryProps
       {showBackToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 w-12 h-12 bg-[#3D5540] text-white rounded-full shadow-lg hover:bg-[#2d3f30] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex items-center justify-center z-50"
+          className="
+            fixed bottom-8 right-8 w-12 h-12
+            bg-[var(--accent-forest)] text-white rounded-full
+            shadow-lg hover:shadow-xl
+            transition-all duration-200
+            hover:-translate-y-0.5
+            flex items-center justify-center z-50
+            cursor-pointer
+          "
           aria-label="Back to top"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
           </svg>
         </button>
       )}
