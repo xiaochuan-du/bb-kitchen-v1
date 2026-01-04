@@ -121,8 +121,11 @@ This copies `.env.local.docker` to `.env.local` before running tests, ensuring t
 ### Database Migrations
 
 Migrations are in `supabase/migrations/` with timestamp prefixes:
-- `20240101000000_initial_schema.sql` - All base tables, RLS, triggers, storage bucket
-- `20240101000001_add_groups.sql` - Group-based authorization
+- `20250101000000_initial_schema.sql` - All base tables, RLS, triggers
+- `20250101000001_add_groups.sql` - Group-based authorization (groups, group_members, RLS helper functions)
+- `20250103000000_secure_storage.sql` - Storage bucket policies
+- `20250104000000_backfill_user_groups.sql` - Backfill personal groups for existing users
+- `20250105000000_grant_table_permissions.sql` - **Critical**: GRANT statements for all tables
 
 To apply migrations after changes:
 ```bash
@@ -304,11 +307,11 @@ npm run supabase:reset   # Apply all migrations
 
 ### Production/Cloud Setup
 
-Supabase migrations are in `supabase/migrations/`:
-- `20240101000000_initial_schema.sql` - All base tables, RLS policies, triggers, storage bucket
-- `20240101000001_add_groups.sql` - Group-based authorization (groups, group_members, updated RLS)
+Supabase migrations are in `supabase/migrations/` (see Database Migrations section above for full list).
 
-Legacy migrations in `migrations/` folder are kept for reference but not used by Supabase CLI.
+**For production deployments**, ensure all migrations are applied via the Supabase dashboard SQL Editor or `supabase db push`.
+
+Legacy migrations in `deprecated/migrations/` folder are kept for reference but not used by Supabase CLI.
 
 Key setup steps:
 1. Create all tables with RLS enabled
@@ -360,6 +363,21 @@ const hasMore = visibleCount < filteredItems.length
 - Guests cannot manipulate other guests' data (verified in Server Actions)
 - Service role key only used in Server Actions, never exposed to client
 - Magic tokens are 32-byte random values (256-bit entropy)
+
+### Important: Table Permissions vs RLS
+
+**Local Supabase CLI auto-grants table permissions** to `authenticated` and `anon` roles for convenience, but **production Supabase requires explicit GRANT statements**.
+
+Always include `GRANT` statements in migrations:
+```sql
+-- Example: Grant permissions on a new table
+GRANT SELECT, INSERT, UPDATE, DELETE ON my_table TO authenticated;
+GRANT SELECT ON my_table TO anon;
+```
+
+Without these grants, you'll get "permission denied for table" errors in production even if RLS policies are correct. RLS controls *which rows* a role can access; GRANT controls *whether the role can access the table at all*.
+
+See `supabase/migrations/20250105000000_grant_table_permissions.sql` for the complete list of required grants.
 
 ## Tech Stack
 

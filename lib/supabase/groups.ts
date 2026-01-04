@@ -17,20 +17,6 @@ export async function getUserGroups(): Promise<GroupWithRole[]> {
 
   if (!user) return [];
 
-  // Debug: Check what auth.uid() returns from the database's perspective
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: authCheck, error: authError } = await (supabase.rpc as any)(
-    'debug_auth'
-  );
-  console.log(
-    'Auth debug - JS user.id:',
-    user.id,
-    'DB sees:',
-    authCheck,
-    'Error:',
-    authError
-  );
-
   // Query groups directly with inner join on memberships
   // This approach works better with RLS policies
   const { data: groups, error } = await supabase

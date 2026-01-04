@@ -28,16 +28,12 @@ export default async function HostDashboard({
   try {
     groups = await getUserGroups();
     activeGroup = await getActiveGroup(groupParam);
-
-    if (!activeGroup) {
-      errorMessage = `No active group found. Groups count: ${groups.length}. User ID: ${user.id}`;
-    }
   } catch (error) {
     console.error('Error fetching groups:', error);
-    errorMessage = `Error: ${error instanceof Error ? error.message : String(error)}`;
+    errorMessage = error instanceof Error ? error.message : String(error);
   }
 
-  // If no active group, show error with debug info
+  // If no active group, show setup message
   if (!activeGroup) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -47,13 +43,17 @@ export default async function HostDashboard({
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Your account doesn&apos;t have a group yet. This can happen if you
-            signed up before the group system was added.
+            signed up before the group system was added, or if database
+            permissions are not configured correctly.
           </p>
           {errorMessage && (
             <p className="text-xs text-red-500 dark:text-red-400 mt-4 font-mono bg-red-50 dark:bg-red-900/20 p-2 rounded">
-              Debug: {errorMessage}
+              {errorMessage}
             </p>
           )}
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
+            Please contact support if this issue persists.
+          </p>
         </div>
       </div>
     );
