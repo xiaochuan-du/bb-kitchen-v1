@@ -3,6 +3,7 @@
 A modern web application for hosts to create curated menu experiences with safety-first ingredient transparency and democratic dessert voting.
 
 [View Project Dashboard](https://supabase.com/dashboard/project/cepfbggmuiarcibzyhfb)
+[vercel project](https://vercel.com/xiaochuan-dus-projects/bb-kitchen-v1)
 
 ## Features
 

@@ -49,16 +49,22 @@ types:
 test:
     npm run test:local
 
-# Run E2E group workflow test
+# Run E2E group workflow test (local only)
 test-e2e:
     cp .env.local.docker .env.local && npx playwright test tests/e2e/group-workflow.spec.ts
 
-# Run E2E group workflow test in UI mode
+# Run E2E group workflow test in UI mode (local only)
 test-e2e-ui:
     cp .env.local.docker .env.local && npx playwright test tests/e2e/group-workflow.spec.ts --ui
 
 # --- Data ---
 
-# Load sample dishes into a group (usage: just load-dishes <group_id>)
-load-dishes group_id:
-    npm run load-dishes {{group_id}}
+# Load sample dishes into a group (usage: just load-dishes [docker|prod] <group_id>)
+load-dishes env group_id:
+    cp .env.local.{{env}} .env.local && npm run load-dishes {{group_id}}
+
+# --- Environment ---
+
+# Show which environment is currently configured
+env:
+    @echo "Current environment:" && grep NEXT_PUBLIC_SUPABASE_URL .env.local | head -1

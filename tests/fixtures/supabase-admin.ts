@@ -112,7 +112,7 @@ export async function getUserPersonalGroup(
  * Create a shared (non-personal) group
  * Automatically adds the owner as a group member with 'owner' role
  */
-export async function createSharedGroup(
+export async function stcreateSharedGroup(
   ownerId: string,
   name: string,
   description?: string
