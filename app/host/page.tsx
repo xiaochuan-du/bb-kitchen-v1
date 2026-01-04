@@ -23,41 +23,37 @@ export default async function HostDashboard({
   // Get user's groups and active group
   let groups: Awaited<ReturnType<typeof getUserGroups>> = [];
   let activeGroup: Awaited<ReturnType<typeof getActiveGroup>> = null;
-  let migrationNeeded = false;
+  let errorMessage: string | null = null;
 
   try {
     groups = await getUserGroups();
     activeGroup = await getActiveGroup(groupParam);
+
+    if (!activeGroup) {
+      errorMessage = `No active group found. Groups count: ${groups.length}. User ID: ${user.id}`;
+    }
   } catch (error) {
-    // Groups table may not exist yet - migration needed
     console.error('Error fetching groups:', error);
-    migrationNeeded = true;
+    errorMessage = `Error: ${error instanceof Error ? error.message : String(error)}`;
   }
 
-  if (!activeGroup && !migrationNeeded) {
-    // Groups table exists but user has no groups - this shouldn't happen
-    migrationNeeded = true;
-  }
-
-  // If migration is needed, show a message
-  if (migrationNeeded || !activeGroup) {
+  // If no active group, show error with debug info
+  if (!activeGroup) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="max-w-md mx-auto p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Database Migration Required
+            Group Setup Required
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            The group-based authorization migration needs to be applied. Please
-            run{' '}
-            <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-              npx supabase db reset
-            </code>{' '}
-            to apply all migrations.
+            Your account doesn&apos;t have a group yet. This can happen if you
+            signed up before the group system was added.
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-500">
-            After running the migration, refresh this page.
-          </p>
+          {errorMessage && (
+            <p className="text-xs text-red-500 dark:text-red-400 mt-4 font-mono bg-red-50 dark:bg-red-900/20 p-2 rounded">
+              Debug: {errorMessage}
+            </p>
+          )}
         </div>
       </div>
     );
